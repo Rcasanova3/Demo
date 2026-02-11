@@ -11,7 +11,7 @@ A calming front-end prototype for a subscription wellness app inspired by a mind
   - reveal button
   - randomized message on each press
 - Prevents immediate back-to-back duplicate messages in the same category
-- Blurry glassmorphism phone-style container with mood-stabilizing palette (white, gray, black, soft blue, soft green, soft gold)
+- Blurry glassmorphism phone-style container with a mood-stabilizing palette (white, gray, black, soft blue, soft green, soft gold)
 
 ## Run
 
@@ -22,3 +22,7 @@ python3 -m http.server 8000
 ```
 
 Then visit `http://localhost:8000`.
+
+## Merge-ready note
+
+This branch keeps a single, clean canonical version of `README.md`, `index.html`, and `styles.css` so conflict markers and duplicated content do not persist.
