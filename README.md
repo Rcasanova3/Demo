@@ -11,7 +11,7 @@ A calming front-end prototype for a subscription wellness app inspired by a mind
   - reveal button
   - randomized message on each press
 - Prevents immediate back-to-back duplicate messages in the same category
-- Minimalist, soft glassmorphism-inspired visual style for a relaxed emotional tone
+- Blurry glassmorphism phone-style container with mood-stabilizing palette (white, gray, black, soft blue, soft green, soft gold)
 
 ## Run
 

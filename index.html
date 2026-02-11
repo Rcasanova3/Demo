@@ -15,33 +15,37 @@
     </div>
 
     <main class="app-shell">
-      <header class="hero glass-panel">
-        <p class="eyebrow">MindLift Daily</p>
-        <h1>Small moments of emotional support, every day.</h1>
-        <p class="hero-copy">
-          Choose a category, tap reveal, and receive one gentle affirmation or psychology tool
-          at a time—like a mindful magic 8-ball.
-        </p>
-      </header>
+      <section class="phone-shell" aria-label="MindLift app preview">
+        <div class="phone-notch" aria-hidden="true"></div>
 
-      <section class="subscription glass-panel">
-        <div>
-          <h2>Weekly membership</h2>
-          <p>$4.99/week • Daily guided prompts across all categories</p>
-        </div>
-        <button id="subscribeBtn" class="primary-btn">Subscribe</button>
-      </section>
+        <header class="hero glass-panel">
+          <p class="eyebrow">MindLift Daily</p>
+          <h1>A quiet space for daily emotional support.</h1>
+          <p class="hero-copy">
+            Tap into affirmations and practical mental wellness tools through one gentle reveal at
+            a time.
+          </p>
+        </header>
 
-      <section class="categories glass-panel" id="categoriesPanel" aria-live="polite">
-        <h2>Choose your support category</h2>
-        <div class="category-list" id="categoryList"></div>
-      </section>
+        <section class="subscription glass-panel">
+          <div>
+            <h2>Weekly membership</h2>
+            <p>$4.99/week • Daily prompts and support tools</p>
+          </div>
+          <button id="subscribeBtn" class="primary-btn">Subscribe</button>
+        </section>
 
-      <section class="oracle glass-panel" id="oraclePanel" hidden>
-        <h2 id="categoryTitle"></h2>
-        <p class="hint">When you're ready, press reveal.</p>
-        <div class="message-box" id="messageBox" role="status" aria-live="polite"></div>
-        <button id="drawBtn" class="primary-btn">Reveal message</button>
+        <section class="categories glass-panel" id="categoriesPanel" aria-live="polite">
+          <h2>Choose a support category</h2>
+          <div class="category-list" id="categoryList"></div>
+        </section>
+
+        <section class="oracle glass-panel" id="oraclePanel" hidden>
+          <h2 id="categoryTitle"></h2>
+          <p class="hint">When you're ready, press reveal.</p>
+          <div class="message-box" id="messageBox" role="status" aria-live="polite"></div>
+          <button id="drawBtn" class="primary-btn">Reveal message</button>
+        </section>
       </section>
     </main>
 
