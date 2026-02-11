@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindLift Daily</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <h1>MindLift Daily</h1>
+        <p>
+          Weekly subscription app with daily affirmations and practical psychology tools.
+          Tap a category, press the button, and reveal a fresh message like a positive magic 8-ball.
+        </p>
+      </header>
+
+      <section class="subscription card">
+        <div>
+          <h2>Weekly Access</h2>
+          <p>$4.99/week • Unlimited daily prompts across all categories</p>
+        </div>
+        <button id="subscribeBtn" class="primary-btn">Subscribe</button>
+      </section>
+
+      <section class="categories card" id="categoriesPanel" aria-live="polite">
+        <h2>Choose a Category</h2>
+        <div class="category-list" id="categoryList"></div>
+      </section>
+
+      <section class="oracle card" id="oraclePanel" hidden>
+        <h2 id="categoryTitle"></h2>
+        <p class="hint">Press the button to receive your message.</p>
+        <div class="message-box" id="messageBox" role="status" aria-live="polite"></div>
+        <button id="drawBtn" class="primary-btn">Reveal Message</button>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
