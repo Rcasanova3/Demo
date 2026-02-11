@@ -246,6 +246,21 @@ h2 {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
 }
 
+
+.category-picker {
+  margin: 0 0 0.85rem;
+}
+
+.category-picker-label {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.category-picker .category-list {
+  margin-top: 0.5rem;
+}
+
 .category-list {
   margin-top: 0.75rem;
   display: flex;
