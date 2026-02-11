@@ -22,7 +22,3 @@ python3 -m http.server 8000
 ```
 
 Then visit `http://localhost:8000`.
-
-## Merge-ready note
-
-This branch keeps a single, clean canonical version of `README.md`, `index.html`, and `styles.css` so conflict markers and duplicated content do not persist.
