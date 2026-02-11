@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindLift Daily</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true">
+      <span class="orb orb-one"></span>
+      <span class="orb orb-two"></span>
+      <span class="orb orb-three"></span>
+      <span class="orb orb-four"></span>
+    </div>
+
+    <main class="app-shell">
+      <header class="hero glass-panel">
+        <p class="eyebrow">MindLift Daily</p>
+        <h1>Small moments of emotional support, every day.</h1>
+        <p class="hero-copy">
+          Choose a category, tap reveal, and receive one gentle affirmation or psychology tool
+          at a time—like a mindful magic 8-ball.
+        </p>
+      </header>
+
+      <section class="subscription glass-panel">
+        <div>
+          <h2>Weekly membership</h2>
+          <p>$4.99/week • Daily guided prompts across all categories</p>
+        </div>
+        <button id="subscribeBtn" class="primary-btn">Subscribe</button>
+      </section>
+
+      <section class="categories glass-panel" id="categoriesPanel" aria-live="polite">
+        <h2>Choose your support category</h2>
+        <div class="category-list" id="categoryList"></div>
+      </section>
+
+      <section class="oracle glass-panel" id="oraclePanel" hidden>
+        <h2 id="categoryTitle"></h2>
+        <p class="hint">When you're ready, press reveal.</p>
+        <div class="message-box" id="messageBox" role="status" aria-live="polite"></div>
+        <button id="drawBtn" class="primary-btn">Reveal message</button>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
