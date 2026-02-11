@@ -1,130 +1,357 @@
+const STORAGE_KEYS = {
+  selectedCategory: "mindlift.selectedCategory",
+  lastReveal: "mindlift.lastReveal",
+  favorites: "mindlift.favorites"
+};
+
 const appState = {
-  subscribed: false,
   activeCategory: null,
-  previousMessageByCategory: {}
+  previousMessageByCategory: {},
+  favorites: []
 };
 
 const categories = {
   "Daily Affirmations": [
-    "You are building a stronger version of yourself one small choice at a time.",
-    "Your effort today matters, even if progress feels quiet.",
-    "You deserve patience from yourself while you heal and grow.",
-    "The way you speak to yourself can become your greatest superpower.",
-    "You have already survived difficult days—you can handle this one too.",
-    "Your calm is available to you, one breath at a time."
+    {
+      message: "You are allowed to grow at a gentle pace today.",
+      why: "Self-compassion lowers stress and helps you stay emotionally steady.",
+      action: "Put one hand on your chest, inhale slowly, and say: ‘I can take this one step at a time.’"
+    },
+    {
+      message: "You are doing better than your inner critic says.",
+      why: "Balanced self-talk helps calm threat responses in the brain.",
+      action: "Write one sentence that proves you handled something difficult this week."
+    },
+    {
+      message: "Your worth is not defined by one hard moment.",
+      why: "Separating identity from temporary feelings supports emotional flexibility.",
+      action: "Look around and name three things that are safe and stable right now."
+    }
   ],
   "Anxiety Tools": [
-    "Grounding reset: name 5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste.",
-    "Ask: Is this a current danger, or a future worry? Respond only to what is here now.",
-    "Try box breathing: inhale 4, hold 4, exhale 4, hold 4. Repeat for one minute.",
-    "Shrink the moment: What is the next smallest helpful action you can take?",
-    "Tell yourself: 'I can feel anxious and still make a wise decision.'",
-    "Set a 10-minute worry window later. For now, return to your present task."
+    {
+      message: "Return to your senses before returning to your worries.",
+      why: "Grounding techniques reduce spiraling and reorient attention to the present.",
+      action: "Name 5 things you see, 4 you feel, 3 you hear, 2 you smell, and 1 you taste."
+    },
+    {
+      message: "You can feel anxious and still choose a clear next step.",
+      why: "Action in small doses builds confidence and lowers avoidance.",
+      action: "Choose one tiny task and set a 30-second timer to begin it."
+    },
+    {
+      message: "Slow breathing tells your nervous system that you are safe enough.",
+      why: "Longer exhales can lower physiological arousal quickly.",
+      action: "Try 4 slow breaths: inhale 4 seconds, exhale 6 seconds."
+    }
   ],
   "Mood Support": [
-    "Do one 2-minute win right now—make your bed, drink water, or stretch.",
-    "Reach out to one person you trust with a simple check-in text.",
-    "Open sunlight, fresh air, and movement for 10 minutes. Let your body help your mind.",
-    "When motivation is low, use momentum: start for just 5 minutes.",
-    "Write one sentence: 'Today is hard, and I am still trying.'",
-    "Focus on 'good enough' today instead of perfect."
+    {
+      message: "Energy can come after action, not only before it.",
+      why: "Behavioral activation can improve mood by creating momentum.",
+      action: "Stand up, stretch your arms overhead, and take 10 slow steps."
+    },
+    {
+      message: "Today can be simple: one caring choice is enough.",
+      why: "Reducing pressure helps you conserve emotional energy.",
+      action: "Drink water slowly for 30 seconds and notice one body sensation."
+    },
+    {
+      message: "Even low days can hold one small win.",
+      why: "Micro-wins strengthen a sense of agency and hope.",
+      action: "Clear one tiny surface near you: a corner of your desk or nightstand."
+    }
   ],
   "Relationship Clarity": [
-    "Use this script: 'When X happened, I felt Y, and I need Z.'",
-    "Before reacting, ask: What outcome do I want from this conversation?",
-    "Boundaries are not punishment—they are instructions for healthy connection.",
-    "If you're overwhelmed, request a pause and choose a time to revisit the issue.",
-    "Choose curiosity first: 'Help me understand what you meant.'",
-    "You can care deeply and still say no."
-  ]
+    {
+      message: "Clarity is kinder than guessing what others meant.",
+      why: "Direct communication reduces misunderstanding and emotional overload.",
+      action: "Draft one sentence: ‘When X happened, I felt Y, and I need Z.’"
+    },
+    {
+      message: "Boundaries protect connection when they are clear and calm.",
+      why: "Healthy limits reduce resentment and support emotional safety.",
+      action: "Practice saying one boundary out loud in a warm tone."
+    },
+    {
+      message: "Pause first, then respond with intention.",
+      why: "A brief pause can prevent reactive communication.",
+      action: "Take one deep breath and count to five before your next reply."
+    }
+  ],
+  "Reset Moments": []
 };
 
-const subscribeBtn = document.getElementById("subscribeBtn");
+const supportBtn = document.getElementById("supportBtn");
 const categoryList = document.getElementById("categoryList");
-const oraclePanel = document.getElementById("oraclePanel");
 const categoryTitle = document.getElementById("categoryTitle");
+const revealHint = document.getElementById("revealHint");
 const messageBox = document.getElementById("messageBox");
 const drawBtn = document.getElementById("drawBtn");
+const drawAnotherBtn = document.getElementById("drawAnotherBtn");
+const favoritesList = document.getElementById("favoritesList");
+const favoritesEmpty = document.getElementById("favoritesEmpty");
 
-const setMessage = (text, isFilled = false) => {
-  messageBox.textContent = text;
-  messageBox.classList.toggle("filled", isFilled);
+const formatTime = (timestamp) => {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 };
 
+const persistSelectedCategory = () => {
+  if (!appState.activeCategory) {
+    return;
+  }
+
+  localStorage.setItem(STORAGE_KEYS.selectedCategory, appState.activeCategory);
+};
+
+const loadFavorites = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.favorites);
+    appState.favorites = raw ? JSON.parse(raw) : [];
+  } catch {
+    appState.favorites = [];
+  }
+};
+
+const persistFavorites = () => {
+  localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(appState.favorites));
+};
+
+const setDrawEnabled = (enabled) => {
+  drawBtn.disabled = !enabled;
+
+  if (!enabled) {
+    revealHint.textContent = "Pick a category to reveal your message.";
+  } else {
+    revealHint.textContent = "Tap Reveal when you're ready.";
+  }
+};
+
+const buildMessageCardHTML = (entry, timestamp, showAnimation = true) => {
+  const lastShown = timestamp ? `<p class="last-shown">Last shown: ${formatTime(timestamp)}</p>` : "";
+
+  return `
+    <article class="message-card ${showAnimation ? "reveal-in" : ""}">
+      <header class="message-header">
+        <h3>${entry.category}</h3>
+        ${lastShown}
+      </header>
+      <p class="message-main">${entry.message}</p>
+      <p><strong>Why this helps:</strong> ${entry.why}</p>
+      <p><strong>Do this now (30 seconds):</strong> ${entry.action}</p>
+      <div class="message-actions">
+        <button id="saveMessageBtn" class="secondary-btn" type="button">Save</button>
+      </div>
+    </article>
+  `;
+};
+
+const renderMessageCard = (entry, timestamp, showAnimation = true) => {
+  messageBox.classList.add("filled");
+  messageBox.innerHTML = buildMessageCardHTML(entry, timestamp, showAnimation);
+
+  const saveBtn = document.getElementById("saveMessageBtn");
+  saveBtn?.addEventListener("click", () => {
+    const alreadySaved = appState.favorites.some(
+      (favorite) => favorite.category === entry.category && favorite.message === entry.message
+    );
+
+    if (alreadySaved) {
+      saveBtn.textContent = "Saved";
+      return;
+    }
+
+    appState.favorites.unshift({
+      id: crypto.randomUUID(),
+      category: entry.category,
+      message: entry.message
+    });
+
+    persistFavorites();
+    renderFavorites();
+    saveBtn.textContent = "Saved";
+  });
+};
+
+const fallbackEntry = (categoryName) => ({
+  category: categoryName,
+  message: "No messages are available in this category yet.",
+  why: "A gentle fallback keeps your routine uninterrupted while content is updated.",
+  action: "Take three slow breaths and choose any other category for a fresh prompt."
+});
+
 const getDifferentMessage = (categoryName) => {
-  const pool = categories[categoryName];
+  const pool = categories[categoryName] || [];
   const previous = appState.previousMessageByCategory[categoryName];
 
-  if (pool.length <= 1) {
-    return pool[0];
+  if (!pool.length) {
+    return fallbackEntry(categoryName);
+  }
+
+  if (pool.length === 1) {
+    const only = { ...pool[0], category: categoryName };
+    appState.previousMessageByCategory[categoryName] = only.message;
+    return only;
   }
 
   let next = pool[Math.floor(Math.random() * pool.length)];
 
-  while (next === previous) {
+  while (next.message === previous) {
     next = pool[Math.floor(Math.random() * pool.length)];
   }
 
-  appState.previousMessageByCategory[categoryName] = next;
-  return next;
+  appState.previousMessageByCategory[categoryName] = next.message;
+  return { ...next, category: categoryName };
 };
 
-const setActiveCategory = (categoryName) => {
+const saveLastReveal = (entry, timestamp) => {
+  localStorage.setItem(
+    STORAGE_KEYS.lastReveal,
+    JSON.stringify({
+      category: entry.category,
+      message: entry.message,
+      why: entry.why,
+      action: entry.action,
+      timestamp
+    })
+  );
+};
+
+const selectCategory = (categoryName) => {
   appState.activeCategory = categoryName;
 
-  document.querySelectorAll(".category-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.category === categoryName);
+  document.querySelectorAll(".category-btn").forEach((button) => {
+    button.classList.toggle("active", button.dataset.category === categoryName);
+    button.setAttribute("aria-pressed", button.dataset.category === categoryName ? "true" : "false");
   });
 
-  oraclePanel.hidden = false;
   categoryTitle.textContent = categoryName;
-  setMessage("", false);
+  setDrawEnabled(true);
+  persistSelectedCategory();
+};
+
+const renderFavorites = () => {
+  favoritesList.innerHTML = "";
+
+  if (!appState.favorites.length) {
+    favoritesEmpty.hidden = false;
+    return;
+  }
+
+  favoritesEmpty.hidden = true;
+
+  appState.favorites.forEach((favorite) => {
+    const item = document.createElement("li");
+    item.className = "favorite-item";
+
+    item.innerHTML = `
+      <div>
+        <p class="favorite-category">${favorite.category}</p>
+        <p class="favorite-message">${favorite.message}</p>
+      </div>
+      <button class="ghost-btn" data-remove-id="${favorite.id}" type="button">Remove</button>
+    `;
+
+    favoritesList.appendChild(item);
+  });
+
+  favoritesList.querySelectorAll("[data-remove-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      appState.favorites = appState.favorites.filter(
+        (favorite) => favorite.id !== button.dataset.removeId
+      );
+      persistFavorites();
+      renderFavorites();
+    });
+  });
+};
+
+const revealMessage = (showAnimation = true) => {
+  if (!appState.activeCategory) {
+    setDrawEnabled(false);
+    return;
+  }
+
+  const entry = getDifferentMessage(appState.activeCategory);
+  const timestamp = Date.now();
+
+  renderMessageCard(entry, timestamp, showAnimation);
+  saveLastReveal(entry, timestamp);
+  drawAnotherBtn.hidden = false;
+};
+
+const restoreFromStorage = () => {
+  const lastCategory = localStorage.getItem(STORAGE_KEYS.selectedCategory);
+  if (lastCategory && categories[lastCategory]) {
+    selectCategory(lastCategory);
+  } else {
+    setDrawEnabled(false);
+  }
+
+  try {
+    const rawLastReveal = localStorage.getItem(STORAGE_KEYS.lastReveal);
+    if (!rawLastReveal) {
+      return;
+    }
+
+    const lastReveal = JSON.parse(rawLastReveal);
+    if (!lastReveal?.category || !lastReveal?.message) {
+      return;
+    }
+
+    if (categories[lastReveal.category]) {
+      selectCategory(lastReveal.category);
+    }
+
+    renderMessageCard(
+      {
+        category: lastReveal.category,
+        message: lastReveal.message,
+        why: lastReveal.why,
+        action: lastReveal.action
+      },
+      lastReveal.timestamp,
+      false
+    );
+
+    appState.previousMessageByCategory[lastReveal.category] = lastReveal.message;
+    drawAnotherBtn.hidden = false;
+  } catch {
+    // ignore invalid localStorage payloads
+  }
 };
 
 const buildCategoryButtons = () => {
-  const names = Object.keys(categories);
-
-  names.forEach((name) => {
+  Object.keys(categories).forEach((name) => {
     const button = document.createElement("button");
+    button.type = "button";
     button.className = "category-btn";
     button.dataset.category = name;
     button.textContent = name;
+    button.setAttribute("aria-pressed", "false");
 
     button.addEventListener("click", () => {
-      if (!appState.subscribed) {
-        setMessage("Subscribe to unlock category messages.", false);
-        return;
-      }
-
-      setActiveCategory(name);
+      selectCategory(name);
     });
 
     categoryList.appendChild(button);
   });
 };
 
-subscribeBtn.addEventListener("click", () => {
-  appState.subscribed = true;
-  subscribeBtn.textContent = "Subscribed ✔";
-  subscribeBtn.disabled = true;
-  subscribeBtn.classList.add("subscription-status");
-  setMessage("Subscription active! Choose a category to begin.", false);
+supportBtn.addEventListener("click", () => {
+  window.alert("Support link coming soon.");
 });
 
 drawBtn.addEventListener("click", () => {
-  if (!appState.subscribed) {
-    setMessage("Subscribe to reveal messages.", false);
-    return;
-  }
+  revealMessage(true);
+});
 
-  if (!appState.activeCategory) {
-    setMessage("Select a category first.", false);
-    return;
-  }
-
-  const message = getDifferentMessage(appState.activeCategory);
-  setMessage(message, true);
+drawAnotherBtn.addEventListener("click", () => {
+  revealMessage(true);
 });
 
 buildCategoryButtons();
-setMessage("Your message will appear here.", false);
+loadFavorites();
+renderFavorites();
+restoreFromStorage();

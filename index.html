@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="MindLift Daily app with calming affirmation and psychology tool prompts in a glass-style UI." />
+    <meta
+      name="description"
+      content="MindLift Daily app with calming affirmation and psychology tool prompts in a glass-style UI."
+    />
     <title>MindLift Daily</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -23,29 +26,50 @@
           <p class="eyebrow">MindLift Daily</p>
           <h1>A quiet space for daily emotional support.</h1>
           <p class="hero-copy">
-            Tap into affirmations and practical mental wellness tools through one gentle reveal at
-            a time.
+            Pick a category, reveal one message, and take one tiny action to support your emotions.
           </p>
         </header>
 
-        <section class="subscription glass-panel">
+        <section class="support glass-panel" aria-label="Support the project">
           <div>
-            <h2>Weekly membership</h2>
-            <p>$4.99/week • Daily prompts and support tools</p>
+            <h2>Support the project</h2>
+            <p>If this helps you, you can support development.</p>
           </div>
-          <button id="subscribeBtn" class="primary-btn">Subscribe</button>
+          <button id="supportBtn" class="secondary-btn">Support</button>
         </section>
 
         <section class="categories glass-panel" id="categoriesPanel" aria-live="polite">
           <h2>Choose a support category</h2>
           <div class="category-list" id="categoryList"></div>
+
+          <div class="onboarding" aria-label="How to use">
+            <h3>How this works</h3>
+            <ol>
+              <li><strong>Step 1:</strong> Pick a category</li>
+              <li><strong>Step 2:</strong> Tap Reveal</li>
+              <li><strong>Step 3:</strong> Try the 30-second action</li>
+            </ol>
+          </div>
         </section>
 
-        <section class="oracle glass-panel" id="oraclePanel" hidden>
-          <h2 id="categoryTitle"></h2>
-          <p class="hint">When you're ready, press reveal.</p>
-          <div class="message-box" id="messageBox" role="status" aria-live="polite"></div>
-          <button id="drawBtn" class="primary-btn">Reveal message</button>
+        <section class="oracle glass-panel" id="oraclePanel">
+          <h2 id="categoryTitle">Message space</h2>
+          <p class="hint" id="revealHint">Pick a category to reveal your message.</p>
+
+          <div class="message-box" id="messageBox" role="status" aria-live="polite">
+            <p class="placeholder-text">Your message card will appear here.</p>
+          </div>
+
+          <div class="oracle-actions">
+            <button id="drawBtn" class="primary-btn" disabled>Reveal</button>
+            <button id="drawAnotherBtn" class="secondary-btn" hidden>Reveal another</button>
+          </div>
+        </section>
+
+        <section class="favorites glass-panel" id="favoritesSection" aria-live="polite">
+          <h2>Favorites</h2>
+          <p class="favorites-empty" id="favoritesEmpty">No saved messages yet.</p>
+          <ul class="favorites-list" id="favoritesList"></ul>
         </section>
       </section>
     </main>

@@ -1,24 +1,44 @@
 # MindLift Daily Demo
 
-A calming front-end prototype for a subscription wellness app inspired by a mindful magic-8-ball interaction.
+A calming static web app for daily affirmations and practical psychological micro-tools.
 
 ## Features
 
-- Weekly subscription unlock flow (`$4.99/week` placeholder)
-- Multiple support categories (affirmations + psychology tools)
-- Same interaction pattern in each category:
-  - quiet message space
-  - reveal button
-  - randomized message on each press
-- Prevents immediate back-to-back duplicate messages in the same category
-- Blurry glassmorphism phone-style container with a mood-stabilizing palette (white, gray, black, soft blue, soft green, soft gold)
+- No paywall: full app access immediately (works offline in a browser)
+- Category chips with clear active state and high-contrast keyboard focus
+- 3-step onboarding guidance:
+  1. Pick a category
+  2. Tap Reveal
+  3. Try the 30-second action
+- Reveal is disabled until a category is selected, with helper guidance
+- Structured message card output with:
+  - category title
+  - short message
+  - "Why this helps"
+  - "Do this now (30 seconds)"
+- Prevents immediate back-to-back duplicate prompts in the same category
+- Friendly fallback when a category has no messages
+- Continuity via localStorage:
+  - last selected category
+  - last revealed card
+  - "Last shown" timestamp on reload
+- Save favorites locally with remove actions
+- Glass-style, mood-stabilizing UI palette for a gentle experience
 
-## Run
+## Run locally
 
-Because this is a static app, you can open `index.html` directly, or serve it locally:
+This is a static site. Serve it from the repo root:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then visit `http://localhost:8000`.
+Open:
+
+```text
+http://localhost:8000
+```
+
+## GitHub Pages
+
+This project is GitHub Pages ready as-is (no build step, no dependencies). Deploy from the repository root on your configured Pages branch.
