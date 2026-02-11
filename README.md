@@ -4,7 +4,7 @@ A calming static web app for daily affirmations and practical psychological micr
 
 ## Features
 
-- No paywall: full app access immediately (works offline in a browser)
+- Fully accessible with no paywall or support gate (works offline in a browser)
 - Category chips with clear active state and high-contrast keyboard focus
 - 3-step onboarding guidance:
   1. Pick a category

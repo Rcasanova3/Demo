@@ -10,6 +10,22 @@ const appState = {
   favorites: []
 };
 
+const safeStorageGet = (key) => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeStorageSet = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // storage unavailable
+  }
+};
+
 const categories = {
   "Daily Affirmations": [
     {
@@ -82,7 +98,6 @@ const categories = {
   "Reset Moments": []
 };
 
-const supportBtn = document.getElementById("supportBtn");
 const categoryList = document.getElementById("categoryList");
 const categoryTitle = document.getElementById("categoryTitle");
 const revealHint = document.getElementById("revealHint");
@@ -102,12 +117,12 @@ const persistSelectedCategory = () => {
     return;
   }
 
-  localStorage.setItem(STORAGE_KEYS.selectedCategory, appState.activeCategory);
+  safeStorageSet(STORAGE_KEYS.selectedCategory, appState.activeCategory);
 };
 
 const loadFavorites = () => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.favorites);
+    const raw = safeStorageGet(STORAGE_KEYS.favorites);
     appState.favorites = raw ? JSON.parse(raw) : [];
   } catch {
     appState.favorites = [];
@@ -115,7 +130,7 @@ const loadFavorites = () => {
 };
 
 const persistFavorites = () => {
-  localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(appState.favorites));
+  safeStorageSet(STORAGE_KEYS.favorites, JSON.stringify(appState.favorites));
 };
 
 const setDrawEnabled = (enabled) => {
@@ -163,7 +178,7 @@ const renderMessageCard = (entry, timestamp, showAnimation = true) => {
     }
 
     appState.favorites.unshift({
-      id: crypto.randomUUID(),
+      id: (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`),
       category: entry.category,
       message: entry.message
     });
@@ -206,7 +221,7 @@ const getDifferentMessage = (categoryName) => {
 };
 
 const saveLastReveal = (entry, timestamp) => {
-  localStorage.setItem(
+  safeStorageSet(
     STORAGE_KEYS.lastReveal,
     JSON.stringify({
       category: entry.category,
@@ -282,7 +297,7 @@ const revealMessage = (showAnimation = true) => {
 };
 
 const restoreFromStorage = () => {
-  const lastCategory = localStorage.getItem(STORAGE_KEYS.selectedCategory);
+  const lastCategory = safeStorageGet(STORAGE_KEYS.selectedCategory);
   if (lastCategory && categories[lastCategory]) {
     selectCategory(lastCategory);
   } else {
@@ -290,7 +305,7 @@ const restoreFromStorage = () => {
   }
 
   try {
-    const rawLastReveal = localStorage.getItem(STORAGE_KEYS.lastReveal);
+    const rawLastReveal = safeStorageGet(STORAGE_KEYS.lastReveal);
     if (!rawLastReveal) {
       return;
     }
@@ -339,9 +354,6 @@ const buildCategoryButtons = () => {
   });
 };
 
-supportBtn.addEventListener("click", () => {
-  window.alert("Support link coming soon.");
-});
 
 drawBtn.addEventListener("click", () => {
   revealMessage(true);
