@@ -234,65 +234,206 @@ const wrapText = (ctx, text, maxWidth) => {
   return lines;
 };
 
-const generateShareImage = async (card) => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1350;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-
-  const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
-  gradient.addColorStop(0, "#eff1f4");
-  gradient.addColorStop(1, "#dadfe6");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 1080, 1350);
-
-  ctx.fillStyle = "rgba(255,255,255,0.72)";
-  ctx.fillRect(96, 120, 888, 1110);
-
-  ctx.fillStyle = "#1d232d";
-  ctx.font = "700 54px Plus Jakarta Sans, sans-serif";
-  ctx.fillText("A Better Thought", 150, 250);
-
-  ctx.font = "600 32px Plus Jakarta Sans, sans-serif";
-  ctx.fillStyle = "#394150";
-  ctx.fillText(`${card.space} · ${card.category}`, 150, 310);
-
-  ctx.font = "700 46px Plus Jakarta Sans, sans-serif";
-  ctx.fillStyle = "#121722";
-  wrapText(ctx, card.main, 760).forEach((line, idx) => ctx.fillText(line, 150, 430 + idx * 62));
-
-  ctx.font = "600 31px Plus Jakarta Sans, sans-serif";
-  ctx.fillStyle = "#2f3746";
-  wrapText(ctx, `Why this helps: ${card.why}`, 760).forEach((line, idx) => ctx.fillText(line, 150, 760 + idx * 48));
-
-  return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
+const roundRectPath = (ctx, x, y, w, h, r) => {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+  ctx.lineTo(x + radius, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
 };
 
-const shareThought = async (card = appState.currentCard) => {
-  if (!card) return;
-  const text = `${card.main}\n\nWhy this helps: ${card.why}`;
+const ensureSharePreviewModal = () => {
+  let modal = document.getElementById("sharePreviewModal");
+  if (modal) return modal;
 
-  if (navigator.share) {
-    try {
-      const blob = await generateShareImage(card);
-      const file = blob ? new File([blob], "a-better-thought.png", { type: "image/png" }) : null;
-      if (file && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ title: "A Better Thought", text, files: [file] });
-        return;
+  modal = document.createElement("div");
+  modal.id = "sharePreviewModal";
+  modal.className = "share-modal";
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="share-modal-backdrop" data-close-share-modal></div>
+    <div class="share-modal-card" role="dialog" aria-modal="true" aria-label="Share image preview">
+      <h3>Share image ready</h3>
+      <img id="sharePreviewImage" alt="Preview of share image" />
+      <div class="share-modal-actions">
+        <a id="shareDownloadLink" class="btn btn-secondary" download="a-better-thought.png">Download PNG</a>
+        <button type="button" class="btn btn-tertiary" data-close-share-modal>Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  modal.querySelectorAll("[data-close-share-modal]").forEach((element) => {
+    element.addEventListener("click", () => {
+      modal.hidden = true;
+      const img = modal.querySelector("#sharePreviewImage");
+      if (img?.dataset?.url) URL.revokeObjectURL(img.dataset.url);
+      if (img) {
+        img.removeAttribute("src");
+        delete img.dataset.url;
       }
-      await navigator.share({ title: "A Better Thought", text });
-      return;
-    } catch {
-      // fallback
-    }
+    });
+  });
+
+  return modal;
+};
+
+const openSharePreview = (blob) => {
+  const modal = ensureSharePreviewModal();
+  const img = modal.querySelector("#sharePreviewImage");
+  const download = modal.querySelector("#shareDownloadLink");
+  if (!img || !download) return;
+
+  if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+  const url = URL.createObjectURL(blob);
+  img.src = url;
+  img.dataset.url = url;
+  download.href = url;
+  modal.hidden = false;
+};
+
+const setShareLoadingState = (button, isLoading) => {
+  if (!button) return;
+  if (isLoading) {
+    button.disabled = true;
+    button.setAttribute("aria-busy", "true");
+    button.dataset.prevText = button.textContent;
+    button.textContent = button.classList.contains("icon-btn") ? "…" : "Preparing share image…";
+    return;
   }
 
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    window.alert("Copied to clipboard.");
-  } else {
-    window.alert(text);
+  button.disabled = false;
+  button.removeAttribute("aria-busy");
+  if (button.dataset.prevText) {
+    button.textContent = button.dataset.prevText;
+    delete button.dataset.prevText;
+  }
+};
+
+const generateShareImage = async (messageText) => {
+  const outputWidth = 1080;
+  const outputHeight = 1350;
+  const scale = 2;
+
+  const workCanvas = document.createElement("canvas");
+  workCanvas.width = outputWidth * scale;
+  workCanvas.height = outputHeight * scale;
+  const workCtx = workCanvas.getContext("2d");
+  if (!workCtx) return null;
+
+  workCtx.scale(scale, scale);
+
+  const gradient = workCtx.createLinearGradient(0, 0, outputWidth, outputHeight);
+  gradient.addColorStop(0, "#eef1f4");
+  gradient.addColorStop(0.5, "#f6f4ef");
+  gradient.addColorStop(1, "#dde2e7");
+  workCtx.fillStyle = gradient;
+  workCtx.fillRect(0, 0, outputWidth, outputHeight);
+
+  const orbs = [
+    { x: 160, y: 240, r: 260, color: "rgba(194, 201, 212, 0.25)" },
+    { x: 890, y: 420, r: 320, color: "rgba(220, 214, 205, 0.22)" },
+    { x: 540, y: 1080, r: 290, color: "rgba(184, 195, 204, 0.2)" }
+  ];
+
+  orbs.forEach((orb) => {
+    workCtx.save();
+    workCtx.filter = "blur(56px)";
+    workCtx.fillStyle = orb.color;
+    workCtx.beginPath();
+    workCtx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+    workCtx.fill();
+    workCtx.restore();
+  });
+
+  roundRectPath(workCtx, 110, 130, 860, 1090, 28);
+  workCtx.fillStyle = "rgba(255, 255, 255, 0.35)";
+  workCtx.fill();
+  workCtx.strokeStyle = "rgba(255, 255, 255, 0.55)";
+  workCtx.lineWidth = 1.5;
+  workCtx.stroke();
+
+  roundRectPath(workCtx, 136, 154, 808, 36, 18);
+  workCtx.fillStyle = "rgba(255, 255, 255, 0.35)";
+  workCtx.fill();
+
+  workCtx.shadowColor = "rgba(27, 34, 44, 0.12)";
+  workCtx.shadowBlur = 26;
+  workCtx.shadowOffsetY = 10;
+  roundRectPath(workCtx, 110, 130, 860, 1090, 28);
+  workCtx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+  workCtx.stroke();
+  workCtx.shadowColor = "transparent";
+
+  workCtx.font = "600 54px Plus Jakarta Sans, system-ui, sans-serif";
+  workCtx.fillStyle = "#1f2630";
+  workCtx.textAlign = "left";
+
+  const maxTextWidth = 760;
+  const lines = wrapText(workCtx, messageText, maxTextWidth);
+  const lineHeight = 72;
+  const blockHeight = lines.length * lineHeight;
+  const startY = 130 + ((1090 - blockHeight) / 2) + lineHeight * 0.25;
+
+  lines.forEach((line, index) => {
+    workCtx.fillText(line, 170, startY + index * lineHeight);
+  });
+
+  const grain = workCtx.createImageData(outputWidth, outputHeight);
+  for (let i = 0; i < grain.data.length; i += 4) {
+    const value = Math.floor(Math.random() * 255);
+    grain.data[i] = value;
+    grain.data[i + 1] = value;
+    grain.data[i + 2] = value;
+    grain.data[i + 3] = 7;
+  }
+  workCtx.putImageData(grain, 0, 0);
+
+  const outCanvas = document.createElement("canvas");
+  outCanvas.width = outputWidth;
+  outCanvas.height = outputHeight;
+  const outCtx = outCanvas.getContext("2d");
+  if (!outCtx) return null;
+  outCtx.drawImage(workCanvas, 0, 0, outputWidth, outputHeight);
+
+  return new Promise((resolve) => outCanvas.toBlob((blob) => resolve(blob), "image/png"));
+};
+
+const shareThought = async (card = appState.currentCard, triggerButton = null) => {
+  const messageText = card?.main?.trim();
+  if (!messageText) {
+    window.alert("Reveal a better thought first.");
+    return;
+  }
+
+  setShareLoadingState(triggerButton, true);
+  try {
+    const blob = await generateShareImage(messageText);
+    if (!blob) {
+      window.alert("Could not prepare the share image.");
+      return;
+    }
+
+    const file = new File([blob], "a-better-thought.png", { type: "image/png" });
+    const canNativeShare = Boolean(navigator.share && navigator.canShare?.({ files: [file] }));
+
+    if (canNativeShare) {
+      await navigator.share({ files: [file], title: "Share" });
+      return;
+    }
+
+    openSharePreview(blob);
+  } catch {
+    window.alert("Could not share right now. Please try again.");
+  } finally {
+    setShareLoadingState(triggerButton, false);
   }
 };
 
@@ -322,7 +463,7 @@ const renderThought = (card, animate = true) => {
     renderThought(card, false);
     renderSaved();
   });
-  document.getElementById("cardShareBtn")?.addEventListener("click", () => shareThought(card));
+  document.getElementById("cardShareBtn")?.addEventListener("click", (event) => shareThought(card, event.currentTarget));
 
   if (animate) requestAnimationFrame(() => thoughtBubble.classList.add("is-revealed"));
 };
@@ -375,7 +516,7 @@ const renderSaved = () => {
     btn.addEventListener("click", () => {
       const item = appState.savedThoughts.find((entry) => entry.id === btn.dataset.shareId);
       if (!item) return;
-      shareThought({ space: item.section, category: item.category, main: item.text, why: item.why || "", timestamp: item.timestamp });
+      shareThought({ space: item.section, category: item.category, main: item.text, why: item.why || "", timestamp: item.timestamp }, btn);
     });
   });
 };

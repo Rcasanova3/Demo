@@ -21,7 +21,7 @@ A calm, mobile-first static web app with multiple support spaces and category-ba
 - Dev validation on load warns in console if any card has missing fields or duplicate IDs
 - Favorites include space, category, text, and timestamp
 - Favorites page supports filtering by All or any Space
-- Share supports Web Share API with image when available; clipboard fallback otherwise
+- Share creates a 1080×1350 PNG with only the revealed core message and opens native file share when supported; otherwise shows a preview with download
 
 ## Run locally
 
