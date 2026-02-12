@@ -257,7 +257,10 @@ const safeStorageRemove = (key) => {
   }
 };
 
-const categoryChips = document.getElementById("categoryChips");
+const orderFilter = document.getElementById("orderFilter");
+const categorySelect = document.getElementById("categorySelect");
+const activeCategoryLabel = document.getElementById("activeCategoryLabel");
+const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
 const actionRow = document.getElementById("actionRow");
@@ -283,43 +286,63 @@ const fallbackThought = (category) => ({
   timestamp: Date.now()
 });
 
-const setSelectedCategory = (category) => {
-  appState.selectedCategory = category;
-  revealBtn.disabled = !category;
+const getOrderedCategoryNames = (mode) => {
+  const names = Object.keys(categories);
 
-  categoryChips.querySelectorAll(".chip").forEach((chip) => {
-    chip.classList.toggle("is-active", chip.dataset.category === category);
-    chip.setAttribute("aria-pressed", chip.dataset.category === category ? "true" : "false");
+  if (mode === "descending") {
+    return [...names].sort((a, b) => b.localeCompare(a));
+  }
+
+  if (mode === "ascending" || mode === "alphabetical") {
+    return [...names].sort((a, b) => a.localeCompare(b));
+  }
+
+  return categoryOrder.filter((name) => names.includes(name));
+};
+
+const setRevealState = () => {
+  const hasCategory = Boolean(appState.selectedCategory);
+  revealBtn.disabled = !hasCategory;
+  revealHelper.textContent = hasCategory
+    ? "Tap Reveal when you're ready."
+    : "Pick a category to reveal your message.";
+  activeCategoryLabel.textContent = hasCategory ? appState.selectedCategory : "No category selected";
+};
+
+const buildCategoryOptions = (mode = "positive") => {
+  const previous = appState.selectedCategory || categorySelect.value;
+  categorySelect.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Select a category";
+  categorySelect.appendChild(placeholder);
+
+  getOrderedCategoryNames(mode).forEach((name) => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    categorySelect.appendChild(option);
   });
 
-  if (category) {
-    safeStorageSet(STORAGE_KEYS.selectedCategory, category);
-  } else {
-    safeStorageRemove(STORAGE_KEYS.selectedCategory);
+  if (previous && categories[previous]) {
+    categorySelect.value = previous;
   }
 };
 
-const renderChips = () => {
-  categoryChips.innerHTML = "";
+const setSelectedCategory = (category) => {
+  if (!category || !categories[category]) {
+    appState.selectedCategory = "";
+    categorySelect.value = "";
+    safeStorageRemove(STORAGE_KEYS.selectedCategory);
+    setRevealState();
+    return;
+  }
 
-  categoryOrder.forEach((name) => {
-    if (!categories[name]) {
-      return;
-    }
-
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "chip";
-    chip.dataset.category = name;
-    chip.textContent = name;
-    chip.setAttribute("aria-pressed", "false");
-
-    chip.addEventListener("click", () => {
-      setSelectedCategory(name);
-    });
-
-    categoryChips.appendChild(chip);
-  });
+  appState.selectedCategory = category;
+  categorySelect.value = category;
+  safeStorageSet(STORAGE_KEYS.selectedCategory, category);
+  setRevealState();
 };
 
 const getThoughtForCategory = (category) => {
@@ -334,9 +357,9 @@ const getThoughtForCategory = (category) => {
     return { ...only, category, timestamp: Date.now() };
   }
 
-  const lastMessage = appState.lastThoughtByCategory[category];
+  const previous = appState.lastThoughtByCategory[category];
   let next = list[Math.floor(Math.random() * list.length)];
-  while (next.message === lastMessage) {
+  while (next.message === previous) {
     next = list[Math.floor(Math.random() * list.length)];
   }
 
@@ -351,7 +374,10 @@ const renderThought = (thought, animate = true) => {
   thoughtBubble.classList.remove("is-revealed");
   thoughtBubble.innerHTML = `
     <article class="thought-content">
-      <p class="thought-category">${thought.category}</p>
+      <p class="thought-category">
+        <span>${thought.category}</span>
+        <span class="last-shown">Last shown: ${new Date(thought.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
+      </p>
       <p class="thought-text">${thought.message}</p>
       <p class="thought-detail"><strong>Why this helps:</strong> ${thought.why}</p>
       <p class="thought-detail"><strong>Do this now (30 seconds):</strong> ${thought.action}</p>
@@ -370,9 +396,11 @@ const renderThought = (thought, animate = true) => {
 
 const revealThought = () => {
   if (!appState.selectedCategory) {
+    setRevealState();
     return;
   }
-  renderThought(getThoughtForCategory(appState.selectedCategory), true);
+
+  renderThought(getThoughtForCategory(appState.selectedCategory));
 };
 
 const persistSaved = () => {
@@ -383,10 +411,13 @@ const renderSaved = () => {
   savedList.innerHTML = "";
 
   if (!appState.savedThoughts.length) {
-    const emptyItem = document.createElement("li");
-    emptyItem.className = "saved-item";
-    emptyItem.innerHTML = '<p class="saved-meta">No saved thoughts yet.</p>';
-    savedList.appendChild(emptyItem);
+    const empty = document.createElement("li");
+    empty.className = "saved-item";
+    empty.innerHTML = `
+      <p class="saved-meta">DAILY AFFIRMATIONS</p>
+      <p class="saved-text">Save a thought to build your personal list.</p>
+    `;
+    savedList.appendChild(empty);
     clearSavedBtn.hidden = true;
     return;
   }
@@ -446,6 +477,7 @@ const wrapText = (ctx, text, maxWidth) => {
 
   words.forEach((word) => {
     const testLine = line ? `${line} ${word}` : word;
+
     if (ctx.measureText(testLine).width > maxWidth && line) {
       lines.push(line);
       line = word;
@@ -466,61 +498,50 @@ const buildThoughtImageBlob = async (thought) => {
   canvas.width = 1080;
   canvas.height = 1350;
   const ctx = canvas.getContext("2d");
+
   if (!ctx) {
     return null;
   }
 
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, "#f6f5f2");
-  gradient.addColorStop(0.5, "#eceee9");
-  gradient.addColorStop(1, "#e7eceb");
+  gradient.addColorStop(0, "#ececec");
+  gradient.addColorStop(1, "#d8d8d8");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "rgba(255,255,255,0.78)";
+  ctx.fillStyle = "rgba(245,245,245,0.92)";
   ctx.strokeStyle = "rgba(255,255,255,0.95)";
   ctx.lineWidth = 3;
-  const cardX = 90;
-  const cardY = 170;
-  const cardW = 900;
-  const cardH = 980;
-
   ctx.beginPath();
-  ctx.roundRect(cardX, cardY, cardW, cardH, 50);
+  ctx.roundRect(100, 140, 880, 1040, 48);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = "#3f5b57";
-  ctx.font = '600 44px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillText("A Better Thought", cardX + 70, cardY + 95);
+  ctx.fillStyle = "#111317";
+  ctx.font = '700 58px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillText("A Better Thought", 165, 255);
 
-  ctx.fillStyle = "#546563";
+  ctx.fillStyle = "#595f67";
   ctx.font = '600 34px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillText(thought.category, cardX + 70, cardY + 160);
+  ctx.fillText(thought.category, 165, 320);
 
-  const bubbleX = cardX + 58;
-  const bubbleY = cardY + 220;
-  const bubbleW = cardW - 116;
-  const bubbleH = 540;
-
-  ctx.fillStyle = "rgba(255,255,255,0.92)";
-  ctx.strokeStyle = "rgba(218,225,223,1)";
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.strokeStyle = "rgba(226,226,226,1)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.roundRect(bubbleX, bubbleY, bubbleW, bubbleH, 36);
+  ctx.roundRect(150, 365, 780, 580, 36);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = "#1f2726";
-  ctx.font = '600 52px "Plus Jakarta Sans", Arial, sans-serif';
-  const lines = wrapText(ctx, thought.message, bubbleW - 90);
-  lines.slice(0, 8).forEach((line, index) => {
-    ctx.fillText(line, bubbleX + 46, bubbleY + 95 + index * 66);
-  });
+  ctx.fillStyle = "#1f2329";
+  ctx.font = '600 50px "Plus Jakarta Sans", Arial, sans-serif';
+  wrapText(ctx, thought.message, 690)
+    .slice(0, 8)
+    .forEach((line, i) => ctx.fillText(line, 195, 460 + i * 66));
 
-  ctx.fillStyle = "#6a7876";
+  ctx.fillStyle = "#6a7078";
   ctx.font = '400 30px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillText("One small shift. Big difference.", cardX + 70, cardY + cardH - 70);
+  ctx.fillText("One small shift. Big difference.", 165, 1080);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), "image/png");
@@ -532,14 +553,17 @@ const copyThought = async () => {
     return;
   }
 
-  const text = `${appState.currentThought.message}\n\n— ${appState.currentThought.category} | A Better Thought`;
-
   if (!navigator.clipboard?.writeText) {
     window.alert("Clipboard is not available on this device.");
     return;
   }
 
-  await navigator.clipboard.writeText(text);
+  await navigator.clipboard.writeText(
+    `${appState.currentThought.message}
+
+${appState.currentThought.category} · A Better Thought`
+  );
+
   copyBtn.textContent = "Copied";
   setTimeout(() => {
     copyBtn.textContent = "Copy thought";
@@ -571,7 +595,9 @@ const shareThought = async () => {
     return;
   }
 
-  const shareText = `${appState.currentThought.message}\n\n${appState.currentThought.category} · A Better Thought`;
+  const shareText = `${appState.currentThought.message}
+
+${appState.currentThought.category} · A Better Thought`;
 
   if (!navigator.share) {
     shareFallback.hidden = false;
@@ -591,15 +617,12 @@ const shareThought = async () => {
       shareFallback.hidden = true;
       return;
     } catch {
-      // user cancelled or unsupported runtime state
+      // cancelled or unsupported
     }
   }
 
   try {
-    await navigator.share({
-      title: "A Better Thought",
-      text: shareText
-    });
+    await navigator.share({ title: "A Better Thought", text: shareText });
     shareFallback.hidden = true;
   } catch {
     shareFallback.hidden = false;
@@ -607,14 +630,9 @@ const shareThought = async () => {
 };
 
 const restoreState = () => {
-  const storedCategory = safeStorageGet(STORAGE_KEYS.selectedCategory);
-  if (storedCategory && categories[storedCategory]) {
-    setSelectedCategory(storedCategory);
-  }
-
   try {
-    const savedRaw = safeStorageGet(STORAGE_KEYS.savedThoughts);
-    appState.savedThoughts = savedRaw ? JSON.parse(savedRaw) : [];
+    const rawSaved = safeStorageGet(STORAGE_KEYS.savedThoughts);
+    appState.savedThoughts = rawSaved ? JSON.parse(rawSaved) : [];
     if (!Array.isArray(appState.savedThoughts)) {
       appState.savedThoughts = [];
     }
@@ -622,30 +640,60 @@ const restoreState = () => {
     appState.savedThoughts = [];
   }
 
+  const storedCategory = safeStorageGet(STORAGE_KEYS.selectedCategory);
+  if (storedCategory && categories[storedCategory]) {
+    appState.selectedCategory = storedCategory;
+  }
+
+  const storedOrder = safeStorageGet("abetterthought.orderFilter");
+  if (storedOrder) {
+    orderFilter.value = storedOrder;
+  }
+
+  buildCategoryOptions(orderFilter.value);
+  if (appState.selectedCategory && categories[appState.selectedCategory]) {
+    categorySelect.value = appState.selectedCategory;
+  }
+
+  setRevealState();
+
   try {
-    const lastThoughtRaw = safeStorageGet(STORAGE_KEYS.lastThought);
-    if (lastThoughtRaw) {
-      const parsed = JSON.parse(lastThoughtRaw);
+    const rawThought = safeStorageGet(STORAGE_KEYS.lastThought);
+    if (rawThought) {
+      const parsed = JSON.parse(rawThought);
       if (parsed?.category && parsed?.message) {
         appState.currentThought = parsed;
-        thoughtBubble.innerHTML = `
-          <article class="thought-content">
-            <p class="thought-category">${parsed.category}</p>
-            <p class="thought-text">${parsed.message}</p>
-            <p class="thought-detail"><strong>Why this helps:</strong> ${parsed.why || "This reminder helps you pause and respond with intention."}</p>
-            <p class="thought-detail"><strong>Do this now (30 seconds):</strong> ${parsed.action || "Take one slow breath and choose your next kind step."}</p>
-          </article>
-        `;
-        actionRow.hidden = false;
         appState.lastThoughtByCategory[parsed.category] = parsed.message;
+        renderThought(
+          {
+            category: parsed.category,
+            message: parsed.message,
+            why: parsed.why || "This reminder helps you pause and respond with intention.",
+            action: parsed.action || "Take one slow breath and choose your next kind step.",
+            timestamp: parsed.timestamp || Date.now()
+          },
+          false
+        );
       }
     }
   } catch {
-    // ignore invalid payload
+    // ignore malformed storage
   }
 
   renderSaved();
 };
+
+orderFilter.addEventListener("change", (event) => {
+  safeStorageSet("abetterthought.orderFilter", event.target.value);
+  buildCategoryOptions(event.target.value);
+  if (appState.selectedCategory && categories[appState.selectedCategory]) {
+    categorySelect.value = appState.selectedCategory;
+  }
+});
+
+categorySelect.addEventListener("change", (event) => {
+  setSelectedCategory(event.target.value);
+});
 
 revealBtn.addEventListener("click", revealThought);
 anotherBtn.addEventListener("click", revealThought);
@@ -659,5 +707,4 @@ clearSavedBtn.addEventListener("click", () => {
   renderSaved();
 });
 
-renderChips();
 restoreState();
