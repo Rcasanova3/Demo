@@ -11,6 +11,7 @@ A calming static web app for daily affirmations and practical psychological micr
   2. Tap Reveal
   3. Try the 30-second action
 - Reveal is disabled until a category is selected, with helper guidance
+- 365 prompts per category (message + why it helps + 30-second action)
 - Structured message card output with:
   - category title
   - short message
