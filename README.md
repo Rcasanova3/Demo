@@ -1,48 +1,39 @@
-# MindLift Daily Demo
+# A Better Thought
 
-A calming static web app for daily affirmations and practical psychological micro-tools.
+A calm, mobile-first static web app that helps people shift their mindset with category-based supportive thoughts and quick 30-second actions.
 
-## Features
+## What it does
 
-- Fully accessible with no paywall or support gate (works offline in a browser)
-- Category dropdown selector with ordering filter and high-contrast keyboard focus
-- 3-step onboarding guidance:
-  1. Pick a category
-  2. Tap Reveal
-  3. Try the 30-second action
-- Reveal is disabled until a category is selected, with helper guidance
-- Organize categories filter: Positive to negative emotions, Alphabetical, Ascending, Descending
-- 365 prompts per category (message + why it helps + 30-second action)
-- Categories: Gratitude, Calm, Joy, Hope, Confidence, Focused, Motivated, Connected, Balanced, Overwhelmed, Anxious, Distracted, Unmotivated, Selfdoubt, Angry, Sad, Guilt, Lonely, Burnout, Overthinking
-- Structured message card output with:
-  - category title
-  - short message
-  - "Why this helps"
-  - "Do this now (30 seconds)"
-- Prevents immediate back-to-back duplicate prompts in the same category
-- Friendly fallback when a category has no messages
-- Continuity via localStorage:
-  - last selected category
-  - last revealed card
-  - "Last shown" timestamp on reload
-- Save favorites locally with remove actions
-- Share button exports a minimalist JPEG affirmation card for sharing across apps
-- Glass-style, mood-stabilizing UI palette for a gentle experience
+- No subscription required (all features are immediately available)
+- Category chip picker with clear active state
+- Reveal flow with tailored thought + why it helps + 30-second action
+- “Show me another better thought” avoids immediate repeats in the same category
+- Save thoughts to localStorage with timestamp + category
+- Remove individual saved thoughts or clear all
+- Persists selected category and last revealed thought between visits
+- Share flow on phones using Web Share API:
+  - Attempts to share a generated PNG thought card (canvas)
+  - Falls back to text sharing when file sharing is unsupported
+  - Shows copy/download fallback controls when Web Share is unavailable
 
 ## Run locally
 
-This is a static site. Serve it from the repo root:
+This project is plain HTML/CSS/JS and works with no build step.
+
+From the repo root:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Open:
+Then open:
 
 ```text
 http://localhost:8000
 ```
 
+You can also open `index.html` directly in a browser.
+
 ## GitHub Pages
 
-This project is GitHub Pages ready as-is (no build step, no dependencies). Deploy from the repository root on your configured Pages branch.
+This repo is ready for GitHub Pages deployment from the branch root (no dependencies, no build tools).

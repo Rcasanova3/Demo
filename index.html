@@ -5,83 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="MindLift Daily app with calming affirmation and psychology tool prompts in a glass-style UI."
+      content="A Better Thought: gentle category-based thought shifts with save and share support."
     />
-    <title>MindLift Daily</title>
+    <title>A Better Thought</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="ambient" aria-hidden="true">
-      <span class="orb orb-one"></span>
-      <span class="orb orb-two"></span>
-      <span class="orb orb-three"></span>
-      <span class="orb orb-four"></span>
-    </div>
+    <div class="bg-orb orb-a" aria-hidden="true"></div>
+    <div class="bg-orb orb-b" aria-hidden="true"></div>
+    <div class="bg-orb orb-c" aria-hidden="true"></div>
+    <div class="noise" aria-hidden="true"></div>
 
-    <main class="app-shell">
-      <section class="phone-shell" aria-label="MindLift app preview">
-        <div class="phone-notch" aria-hidden="true"></div>
-
-        <header class="hero glass-panel">
-          <p class="eyebrow">MindLift Daily</p>
-          <h1>A quiet space for daily emotional support.</h1>
-          <p class="hero-copy">
-            Pick a category, reveal one message, and take one tiny action to support your emotions.
-          </p>
+    <main class="page">
+      <section class="glass-phone" aria-label="A Better Thought app">
+        <header class="hero panel">
+          <p class="brand">A Better Thought</p>
+          <h1>One small shift. Big difference.</h1>
         </header>
 
-        
+        <section class="panel categories" aria-live="polite">
+          <h2>What do you need right now?</h2>
+          <p class="subtext">Pick a category to get something tailored.</p>
+          <div class="chips" id="categoryChips"></div>
+        </section>
 
-        <section class="categories glass-panel" id="categoriesPanel" aria-live="polite">
-          <h2>Choose a support category</h2>
-          <div class="onboarding" aria-label="How to use">
-            <h3>How this works</h3>
-            <ol>
-              <li><strong>Step 1:</strong> Pick a category</li>
-              <li><strong>Step 2:</strong> Tap Reveal</li>
-              <li><strong>Step 3:</strong> Try the 30-second action</li>
-            </ol>
+        <section class="panel reveal">
+          <div class="thought-bubble" id="thoughtBubble" role="status" aria-live="polite">
+            <p class="placeholder">Choose a category and reveal your better thought.</p>
+          </div>
+
+          <button id="revealBtn" class="btn btn-primary" disabled>Reveal a better thought</button>
+
+          <div class="action-row" id="actionRow" hidden>
+            <button id="anotherBtn" class="btn btn-secondary">Show me another better thought</button>
+            <button id="saveBtn" class="btn btn-secondary">Save this thought</button>
+            <button id="shareBtn" class="btn btn-secondary">Share this thought</button>
+          </div>
+
+          <div class="share-fallback" id="shareFallback" hidden>
+            <button id="copyBtn" class="btn btn-tertiary">Copy thought</button>
+            <button id="downloadBtn" class="btn btn-tertiary">Download image</button>
           </div>
         </section>
 
-        <section class="oracle glass-panel" id="oraclePanel">
-          <h2 id="categoryTitle">Message space</h2>
-          <p class="hint" id="revealHint">Pick a category to reveal your message.</p>
-
-          <div class="message-box" id="messageBox" role="status" aria-live="polite">
-            <p class="placeholder-text">Your message card will appear here.</p>
-          </div>
-
-          
-          <div class="category-picker" aria-label="Choose a category">
-            <label class="category-picker-label" for="categoryOrderFilter">Organize categories:</label>
-            <select id="categoryOrderFilter" class="category-select">
-              <option value="positive">Positive to negative emotions</option>
-              <option value="alphabetical">Alphabetical</option>
-              <option value="ascending">Ascending</option>
-              <option value="descending">Descending</option>
-            </select>
-
-            <label class="category-picker-label" for="categorySelect">Pick a category:</label>
-            <select id="categorySelect" class="category-select"></select>
-          </div>
-
-          <div class="oracle-actions">
-            <button id="drawBtn" class="primary-btn" disabled>Reveal</button>
-          </div>
-        </section>
-
-        <section class="favorites glass-panel" id="favoritesSection" aria-live="polite">
-          <h2>Favorites</h2>
-          <p class="favorites-empty" id="favoritesEmpty">No saved messages yet.</p>
-          <ul class="favorites-list" id="favoritesList"></ul>
-        </section>
+        <details class="panel saved" id="savedPanel" open>
+          <summary>Saved thoughts</summary>
+          <ul id="savedList" class="saved-list"></ul>
+          <button id="clearSavedBtn" class="btn btn-tertiary" hidden>Clear all</button>
+        </details>
       </section>
     </main>
 
