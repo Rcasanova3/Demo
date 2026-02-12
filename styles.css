@@ -150,17 +150,16 @@ ol {
 .thought-bubble {
   position: relative;
   margin-top: 10px;
-  border: 1px solid rgba(255, 228, 179, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.62);
   border-radius: 18px;
   padding: 14px;
   min-height: 170px;
-  background:
-    radial-gradient(120% 140% at 20% 10%, rgba(255, 188, 92, 0.28), rgba(173, 96, 22, 0.22) 45%, rgba(122, 62, 9, 0.28) 100%),
-    linear-gradient(165deg, rgba(255, 191, 96, 0.22), rgba(140, 75, 12, 0.24));
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.46), rgba(244, 246, 250, 0.34));
   box-shadow:
-    inset 0 1px 0 rgba(255, 244, 218, 0.5),
-    0 14px 28px rgba(131, 67, 10, 0.18),
-    0 0 34px rgba(255, 168, 56, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    0 12px 24px rgba(19, 23, 34, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .thought-bubble::before {
@@ -169,7 +168,7 @@ ol {
   inset: 0;
   border-radius: 18px;
   pointer-events: none;
-  background: radial-gradient(95% 65% at 70% 22%, rgba(255, 205, 119, 0.32), transparent 60%);
+  background: radial-gradient(95% 65% at 70% 22%, rgba(255, 255, 255, 0.34), transparent 62%);
 }
 
 .thought-bubble.is-revealed {
@@ -177,7 +176,7 @@ ol {
 }
 
 .placeholder {
-  color: rgba(255, 244, 225, 0.88);
+  color: var(--muted);
 }
 
 .thought-content {
@@ -189,7 +188,7 @@ ol {
 
 .thought-category {
   font-size: 0.84rem;
-  color: rgba(255, 240, 216, 0.96);
+  color: rgba(40, 46, 56, 0.84);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -200,9 +199,9 @@ ol {
   display: inline-flex;
   padding: 5px 10px;
   border-radius: 10px;
-  background: rgba(95, 44, 5, 0.38);
-  border: 1px solid rgba(255, 216, 151, 0.35);
-  color: rgba(255, 241, 214, 0.96);
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  color: rgba(29, 34, 43, 0.88);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   font-weight: 700;
@@ -210,26 +209,26 @@ ol {
 
 .last-shown {
   font-size: 0.72rem;
-  color: rgba(255, 229, 182, 0.9);
+  color: rgba(57, 63, 74, 0.75);
 }
 
 .thought-text {
   font-weight: 700;
-  color: rgba(255, 249, 236, 0.98);
+  color: rgba(26, 31, 39, 0.95);
   font-size: clamp(1.04rem, 3.4vw, 1.2rem);
   line-height: 1.35;
 }
 
 .thought-divider {
-  height: 3px;
+  height: 2px;
   width: 55%;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255, 217, 137, 0.9), rgba(255, 173, 58, 0.18));
+  background: linear-gradient(90deg, rgba(117, 130, 150, 0.45), rgba(117, 130, 150, 0.1));
 }
 
 .thought-detail {
   font-size: 0.93rem;
-  color: rgba(255, 244, 223, 0.95);
+  color: rgba(35, 41, 50, 0.88);
 }
 
 .card-actions-inline {
@@ -243,9 +242,9 @@ ol {
   width: 38px;
   height: 38px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 221, 164, 0.55);
-  background: rgba(92, 42, 4, 0.22);
-  color: rgba(255, 245, 228, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.45);
+  color: rgba(32, 38, 48, 0.9);
   font: inherit;
   font-size: 1.1rem;
   line-height: 1;
