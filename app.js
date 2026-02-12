@@ -210,7 +210,7 @@ const categoryThemes = {
     ],
     actionTail: "Take 30 seconds to offer yourself care."
   },
-  "Guilt/Shame": {
+  Guilt: {
     openers: [
       "You can take responsibility without attacking yourself.",
       "Growth is possible without self-punishment.",
@@ -294,7 +294,7 @@ const categoryThemes = {
     ],
     actionTail: "Use 30 seconds to move from loop to action."
   },
-  "Gratitude/Positive": {
+  Gratitude: {
     openers: [
       "There is still something good available right now.",
       "Small moments of appreciation can steady your mood.",
