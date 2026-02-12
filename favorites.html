@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A Better Thought favorites: your saved messages in one place."
+    />
+    <title>A Better Thought · Favorites</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="favorites">
+    <main class="app-wrap">
+      <section class="phone-shell" aria-label="Saved favorites page">
+        <div class="notch" aria-hidden="true"></div>
+
+        <header class="panel hero">
+          <p class="eyebrow">A BETTER THOUGHT</p>
+          <h1>Favorites</h1>
+          <p class="subtext">Your saved messages in one calm space.</p>
+        </header>
+
+        <section class="panel favorites-page-panel">
+          <ul id="savedList" class="saved-list"></ul>
+          <div class="favorites-actions">
+            <button id="clearSavedBtn" class="btn btn-tertiary" hidden>Clear all</button>
+            <a class="btn btn-secondary" href="index.html">Back to app</a>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

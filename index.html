@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="A Better Thought: a quiet space for daily emotional support with category-based thought shifts."
+      content="A Better Thought: One small shift. Big difference."
     />
     <title>A Better Thought</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,7 +16,7 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body data-page="home">
     <main class="app-wrap">
       <section class="phone-shell" aria-label="A Better Thought app">
         <div class="notch" aria-hidden="true"></div>
@@ -24,7 +24,7 @@
         <header class="panel hero">
           <p class="eyebrow">A BETTER THOUGHT</p>
           <h1>A quiet space for daily emotional support.</h1>
-          <p class="subtext">Pick a category, reveal one message, and take one tiny action to support your emotions.</p>
+          <p class="subtext">One small shift. Big difference.</p>
         </header>
 
         <section class="panel onboarding">
@@ -59,25 +59,17 @@
               <option value="">Select a category</option>
             </select>
 
-            <button id="revealBtn" class="btn btn-primary" disabled>Reveal a better thought</button>
+            <button id="revealBtn" class="btn btn-primary" disabled>Reveal message</button>
           </div>
 
           <div class="action-row" id="actionRow" hidden>
-            <button id="anotherBtn" class="btn btn-secondary">Show me another better thought</button>
             <button id="saveBtn" class="btn btn-secondary">Save this thought</button>
-            <button id="shareBtn" class="btn btn-secondary">Share this thought</button>
+            <button id="shareBtn" class="btn btn-secondary">Share or Download</button>
           </div>
 
-          <div class="share-fallback" id="shareFallback" hidden>
-            <button id="copyBtn" class="btn btn-tertiary">Copy thought</button>
-            <button id="downloadBtn" class="btn btn-tertiary">Download image</button>
+          <div class="favorites-link-wrap">
+            <a class="btn btn-tertiary favorites-link" href="favorites.html">Open Favorites</a>
           </div>
-        </section>
-
-        <section class="panel favorites">
-          <h2>Favorites</h2>
-          <ul id="savedList" class="saved-list"></ul>
-          <button id="clearSavedBtn" class="btn btn-tertiary" hidden>Clear all</button>
         </section>
       </section>
     </main>

@@ -264,11 +264,8 @@ const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
 const actionRow = document.getElementById("actionRow");
-const anotherBtn = document.getElementById("anotherBtn");
 const saveBtn = document.getElementById("saveBtn");
 const shareBtn = document.getElementById("shareBtn");
-const shareFallback = document.getElementById("shareFallback");
-const copyBtn = document.getElementById("copyBtn");
 const downloadBtn = document.getElementById("downloadBtn");
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
@@ -302,15 +299,16 @@ const getOrderedCategoryNames = (mode) => {
 
 const setRevealState = () => {
   const hasCategory = Boolean(appState.selectedCategory);
-  revealBtn.disabled = !hasCategory;
-  revealHelper.textContent = hasCategory
+  if (revealBtn) revealBtn.disabled = !hasCategory;
+  if (revealHelper) revealHelper.textContent = hasCategory
     ? "Tap Reveal when you're ready."
     : "Pick a category to reveal your message.";
-  activeCategoryLabel.textContent = hasCategory ? appState.selectedCategory : "No category selected";
+  if (activeCategoryLabel) activeCategoryLabel.textContent = hasCategory ? appState.selectedCategory : "No category selected";
 };
 
 const buildCategoryOptions = (mode = "positive") => {
   const previous = appState.selectedCategory || categorySelect.value;
+  if (!categorySelect) return;
   categorySelect.innerHTML = "";
 
   const placeholder = document.createElement("option");
@@ -333,14 +331,14 @@ const buildCategoryOptions = (mode = "positive") => {
 const setSelectedCategory = (category) => {
   if (!category || !categories[category]) {
     appState.selectedCategory = "";
-    categorySelect.value = "";
+    if (categorySelect) categorySelect.value = "";
     safeStorageRemove(STORAGE_KEYS.selectedCategory);
     setRevealState();
     return;
   }
 
   appState.selectedCategory = category;
-  categorySelect.value = category;
+  if (categorySelect) categorySelect.value = category;
   safeStorageSet(STORAGE_KEYS.selectedCategory, category);
   setRevealState();
 };
@@ -371,6 +369,7 @@ const renderThought = (thought, animate = true) => {
   appState.currentThought = thought;
   safeStorageSet(STORAGE_KEYS.lastThought, JSON.stringify(thought));
 
+  if (!thoughtBubble) return;
   thoughtBubble.classList.remove("is-revealed");
   thoughtBubble.innerHTML = `
     <article class="thought-content">
@@ -390,8 +389,7 @@ const renderThought = (thought, animate = true) => {
     });
   }
 
-  actionRow.hidden = false;
-  shareFallback.hidden = true;
+  if (actionRow) actionRow.hidden = false;
 };
 
 const revealThought = () => {
@@ -408,6 +406,7 @@ const persistSaved = () => {
 };
 
 const renderSaved = () => {
+  if (!savedList) return;
   savedList.innerHTML = "";
 
   if (!appState.savedThoughts.length) {
@@ -418,11 +417,11 @@ const renderSaved = () => {
       <p class="saved-text">Save a thought to build your personal list.</p>
     `;
     savedList.appendChild(empty);
-    clearSavedBtn.hidden = true;
+    if (clearSavedBtn) clearSavedBtn.hidden = true;
     return;
   }
 
-  clearSavedBtn.hidden = false;
+  if (clearSavedBtn) clearSavedBtn.hidden = false;
 
   appState.savedThoughts.forEach((item) => {
     const li = document.createElement("li");
@@ -548,28 +547,6 @@ const buildThoughtImageBlob = async (thought) => {
   });
 };
 
-const copyThought = async () => {
-  if (!appState.currentThought) {
-    return;
-  }
-
-  if (!navigator.clipboard?.writeText) {
-    window.alert("Clipboard is not available on this device.");
-    return;
-  }
-
-  await navigator.clipboard.writeText(
-    `${appState.currentThought.message}
-
-${appState.currentThought.category} · A Better Thought`
-  );
-
-  copyBtn.textContent = "Copied";
-  setTimeout(() => {
-    copyBtn.textContent = "Copy thought";
-  }, 1400);
-};
-
 const downloadThoughtImage = async () => {
   if (!appState.currentThought) {
     return;
@@ -600,7 +577,7 @@ const shareThought = async () => {
 ${appState.currentThought.category} · A Better Thought`;
 
   if (!navigator.share) {
-    shareFallback.hidden = false;
+    await downloadThoughtImage();
     return;
   }
 
@@ -614,7 +591,6 @@ ${appState.currentThought.category} · A Better Thought`;
         text: shareText,
         files: [file]
       });
-      shareFallback.hidden = true;
       return;
     } catch {
       // cancelled or unsupported
@@ -623,9 +599,8 @@ ${appState.currentThought.category} · A Better Thought`;
 
   try {
     await navigator.share({ title: "A Better Thought", text: shareText });
-    shareFallback.hidden = true;
   } catch {
-    shareFallback.hidden = false;
+    await downloadThoughtImage();
   }
 };
 
@@ -646,13 +621,15 @@ const restoreState = () => {
   }
 
   const storedOrder = safeStorageGet("abetterthought.orderFilter");
-  if (storedOrder) {
+  if (storedOrder && orderFilter) {
     orderFilter.value = storedOrder;
   }
 
-  buildCategoryOptions(orderFilter.value);
-  if (appState.selectedCategory && categories[appState.selectedCategory]) {
-    categorySelect.value = appState.selectedCategory;
+  if (orderFilter && categorySelect) {
+    buildCategoryOptions(orderFilter.value);
+    if (appState.selectedCategory && categories[appState.selectedCategory]) {
+      categorySelect.value = appState.selectedCategory;
+    }
   }
 
   setRevealState();
@@ -683,28 +660,49 @@ const restoreState = () => {
   renderSaved();
 };
 
-orderFilter.addEventListener("change", (event) => {
-  safeStorageSet("abetterthought.orderFilter", event.target.value);
-  buildCategoryOptions(event.target.value);
-  if (appState.selectedCategory && categories[appState.selectedCategory]) {
-    categorySelect.value = appState.selectedCategory;
+const initHomePage = () => {
+  orderFilter?.addEventListener("change", (event) => {
+    safeStorageSet("abetterthought.orderFilter", event.target.value);
+    buildCategoryOptions(event.target.value);
+    if (appState.selectedCategory && categories[appState.selectedCategory]) {
+      categorySelect.value = appState.selectedCategory;
+    }
+  });
+
+  categorySelect?.addEventListener("change", (event) => {
+    setSelectedCategory(event.target.value);
+  });
+
+  revealBtn?.addEventListener("click", revealThought);
+  saveBtn?.addEventListener("click", saveCurrentThought);
+  shareBtn?.addEventListener("click", shareThought);
+  downloadBtn?.addEventListener("click", downloadThoughtImage);
+
+  restoreState();
+};
+
+const initFavoritesPage = () => {
+  try {
+    const rawSaved = safeStorageGet(STORAGE_KEYS.savedThoughts);
+    appState.savedThoughts = rawSaved ? JSON.parse(rawSaved) : [];
+    if (!Array.isArray(appState.savedThoughts)) {
+      appState.savedThoughts = [];
+    }
+  } catch {
+    appState.savedThoughts = [];
   }
-});
 
-categorySelect.addEventListener("change", (event) => {
-  setSelectedCategory(event.target.value);
-});
-
-revealBtn.addEventListener("click", revealThought);
-anotherBtn.addEventListener("click", revealThought);
-saveBtn.addEventListener("click", saveCurrentThought);
-shareBtn.addEventListener("click", shareThought);
-copyBtn.addEventListener("click", copyThought);
-downloadBtn.addEventListener("click", downloadThoughtImage);
-clearSavedBtn.addEventListener("click", () => {
-  appState.savedThoughts = [];
-  persistSaved();
   renderSaved();
-});
 
-restoreState();
+  clearSavedBtn?.addEventListener("click", () => {
+    appState.savedThoughts = [];
+    persistSaved();
+    renderSaved();
+  });
+};
+
+if (document.body.dataset.page === "favorites") {
+  initFavoritesPage();
+} else {
+  initHomePage();
+}
