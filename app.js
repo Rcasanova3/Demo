@@ -162,44 +162,44 @@ const SPACE_KEYS = Object.keys(SPACES);
 
 const BASE_COMPONENTS = {
   openers: [
+    "Take a breath.",
     "Pause for a second.",
-    "You are allowed to slow this moment down.",
-    "One grounded thought can change your next step.",
-    "You can respond without rushing.",
-    "This moment can be handled one breath at a time.",
-    "Small steadiness still counts as progress.",
-    "You don't need perfect conditions to move forward.",
-    "You can reset right here."
+    "You can reset right now.",
+    "Keep this moment simple.",
+    "Start with one small step.",
+    "You are allowed to slow down.",
+    "You can handle this in parts.",
+    "Steady is enough right now."
   ],
   reframes: [
-    "You are not behind; you are adjusting in real time.",
-    "Progress is often quiet and incremental.",
-    "Clear and simple beats intense and scattered.",
-    "Pressure can be reduced by shrinking the next step.",
-    "You can hold standards and self-kindness at the same time.",
-    "Stability grows through consistent small actions.",
-    "One calm choice can redirect the whole hour.",
-    "Enough clarity is enough to begin."
+    "You do not need to do everything at once.",
+    "One clear step is enough for now.",
+    "Progress can be small and still real.",
+    "Calm choices make hard moments easier.",
+    "You can focus on what is in your control.",
+    "Good enough is better than stuck.",
+    "Clarity comes from action, not pressure.",
+    "You can begin without being perfect."
   ],
   actions: [
-    "Take one slow inhale and a longer exhale.",
-    "Name one specific next action in five words.",
-    "Lower your shoulders and unclench your jaw.",
-    "Set a 30-second timer and start the first step.",
-    "Pick one thing to postpone and one thing to do now.",
-    "Use one short sentence to communicate clearly.",
-    "Reduce one distraction in your environment.",
-    "Write one supportive line to yourself."
+    "Write one next step in five words.",
+    "Take one slow inhale and long exhale.",
+    "Remove one distraction near you.",
+    "Start for 30 seconds.",
+    "Say one clear sentence.",
+    "Choose one priority now.",
+    "Relax your shoulders and jaw.",
+    "Finish one small task first."
   ],
   closers: [
-    "Keep it simple and steady.",
-    "You only need this next step.",
-    "Small wins rebuild momentum.",
-    "Consistency matters more than intensity.",
-    "A calm pace is still forward motion.",
-    "You can check in again after this step.",
-    "Let this be enough for now.",
-    "Return to what you can control next."
+    "Small steps count.",
+    "Keep it simple.",
+    "Steady beats rushed.",
+    "You can check in again soon.",
+    "This is enough for right now.",
+    "Stay with the next step.",
+    "You are moving forward.",
+    "Let this be your reset."
   ]
 };
 
@@ -350,13 +350,13 @@ const nextMessage = (space, category) => {
   const state = appState.messageState[key];
   let idx = state.bag.pop();
   let decoded = decodeIndex(idx, lens);
-  let message = `${category}: ${pool.o[decoded.oIdx]} ${pool.r[decoded.rIdx]} ${pool.a[decoded.aIdx]} ${pool.c[decoded.cIdx]}`;
+  let message = `${pool.o[decoded.oIdx]} ${pool.r[decoded.rIdx]}`;
 
   let guard = 0;
   while (state.recent.includes(message) && state.bag.length && guard < 20) {
     idx = state.bag.pop();
     decoded = decodeIndex(idx, lens);
-    message = `${category}: ${pool.o[decoded.oIdx]} ${pool.r[decoded.rIdx]} ${pool.a[decoded.aIdx]} ${pool.c[decoded.cIdx]}`;
+    message = `${pool.o[decoded.oIdx]} ${pool.r[decoded.rIdx]}`;
     guard += 1;
   }
 
@@ -367,8 +367,8 @@ const nextMessage = (space, category) => {
     space,
     category,
     message,
-    why: "A small reframe can lower reactivity and support steadier decisions.",
-    action: "Take 30 seconds and do just the next clear step.",
+    why: pool.c[decoded.cIdx],
+    action: pool.a[decoded.aIdx],
     timestamp: Date.now()
   };
 };
