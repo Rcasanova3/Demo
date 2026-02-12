@@ -302,7 +302,6 @@ const activeCategoryLabel = document.getElementById("activeCategoryLabel");
 const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
-const orderFilter = document.getElementById("orderFilter");
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
 const savedFilterBtns = document.querySelectorAll("[data-saved-filter]");
@@ -409,18 +408,12 @@ const renderSpaceSwitch = () => {
   });
 };
 
-const getOrderedCategories = (mode) => {
-  const names = [...SPACES[appState.activeSpace]];
-  if (mode === "descending") return names.sort((a, b) => b.localeCompare(a));
-  if (mode === "ascending" || mode === "alphabetical") return names.sort((a, b) => a.localeCompare(b));
-  return names;
-};
+const getOrderedCategories = () => [...SPACES[appState.activeSpace]].sort((a, b) => a.localeCompare(b));
 
 const renderCategoryOptions = () => {
   if (!categorySelect) return;
-  const mode = orderFilter?.value || "positive";
   categorySelect.innerHTML = '<option value="">Select a category</option>';
-  getOrderedCategories(mode).forEach((category) => {
+  getOrderedCategories().forEach((category) => {
     const option = document.createElement("option");
     option.value = category;
     option.textContent = category;
@@ -707,12 +700,6 @@ const initHomePage = () => {
     setRevealState();
   });
 
-  orderFilter?.addEventListener("change", () => {
-    renderCategoryOptions();
-    if (appState.selectedCategory) {
-      categorySelect.value = appState.selectedCategory;
-    }
-  });
 
   revealBtn?.addEventListener("click", revealThought);
 
