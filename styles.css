@@ -186,8 +186,7 @@ h2 {
 
 .primary-btn,
 .secondary-btn,
-.ghost-btn,
-.category-btn {
+.ghost-btn {
   min-height: 44px;
 }
 
@@ -225,22 +224,20 @@ h2 {
 
 .primary-btn:hover,
 .secondary-btn:hover,
-.ghost-btn:hover,
-.category-btn:hover {
+.ghost-btn:hover {
   transform: translateY(-1px);
 }
 
 .primary-btn,
 .secondary-btn,
-.ghost-btn,
-.category-btn {
+.ghost-btn {
   transition: transform 150ms ease, box-shadow 180ms ease, background 180ms ease;
 }
 
 .primary-btn:focus-visible,
 .secondary-btn:focus-visible,
 .ghost-btn:focus-visible,
-.category-btn:focus-visible {
+.category-select:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
@@ -257,31 +254,23 @@ h2 {
   color: var(--muted);
 }
 
-.category-picker .category-list {
+.category-select {
   margin-top: 0.5rem;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.84);
+  color: #202020;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.92rem;
 }
 
-.category-list {
-  margin-top: 0.75rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+.category-select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
-.category-btn {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
-  color: #232323;
-  padding: 0.45rem 0.8rem;
-  font-size: 0.88rem;
-}
-
-.category-btn.active {
-  background: var(--chip-active);
-  border-color: #3b6eab;
-  box-shadow: inset 0 0 0 1px rgba(59, 110, 171, 0.2);
-}
 
 .message-box {
   margin: 0.74rem 0 0.85rem;
