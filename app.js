@@ -567,10 +567,11 @@ const renderThought = (thought, animate = true) => {
   thoughtBubble.innerHTML = `
     <article class="thought-content">
       <p class="thought-category">
-        <span>${thought.category}</span>
+        <span class="thought-tag">MESSAGE</span>
         <span class="last-shown">Last shown: ${new Date(thought.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
       </p>
       <p class="thought-text">${thought.message}</p>
+      <div class="thought-divider" aria-hidden="true"></div>
       <p class="thought-detail"><strong>Why this helps:</strong> ${thought.why}</p>
       <p class="thought-detail"><strong>Do this now (30 seconds):</strong> ${thought.action}</p>
       <div class="card-actions-inline">

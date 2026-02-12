@@ -148,13 +148,28 @@ ol {
 }
 
 .thought-bubble {
+  position: relative;
   margin-top: 10px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px;
-  min-height: 150px;
-  box-shadow: 0 8px 18px rgba(40, 40, 40, 0.06);
+  border: 1px solid rgba(255, 228, 179, 0.55);
+  border-radius: 18px;
+  padding: 14px;
+  min-height: 170px;
+  background:
+    radial-gradient(120% 140% at 20% 10%, rgba(255, 188, 92, 0.28), rgba(173, 96, 22, 0.22) 45%, rgba(122, 62, 9, 0.28) 100%),
+    linear-gradient(165deg, rgba(255, 191, 96, 0.22), rgba(140, 75, 12, 0.24));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 218, 0.5),
+    0 14px 28px rgba(131, 67, 10, 0.18),
+    0 0 34px rgba(255, 168, 56, 0.18);
+}
+
+.thought-bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  pointer-events: none;
+  background: radial-gradient(95% 65% at 70% 22%, rgba(255, 205, 119, 0.32), transparent 60%);
 }
 
 .thought-bubble.is-revealed {
@@ -162,33 +177,59 @@ ol {
 }
 
 .placeholder {
-  color: #646973;
+  color: rgba(255, 244, 225, 0.88);
 }
 
 .thought-content {
+  position: relative;
+  z-index: 1;
   display: grid;
-  gap: 8px;
+  gap: 9px;
 }
 
 .thought-category {
-  font-size: 0.88rem;
-  color: #4f545d;
+  font-size: 0.84rem;
+  color: rgba(255, 240, 216, 0.96);
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 8px;
+}
+
+.thought-tag {
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: rgba(95, 44, 5, 0.38);
+  border: 1px solid rgba(255, 216, 151, 0.35);
+  color: rgba(255, 241, 214, 0.96);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  font-weight: 700;
 }
 
 .last-shown {
   font-size: 0.72rem;
-  color: #6a7079;
+  color: rgba(255, 229, 182, 0.9);
 }
 
 .thought-text {
-  font-weight: 600;
+  font-weight: 700;
+  color: rgba(255, 249, 236, 0.98);
+  font-size: clamp(1.04rem, 3.4vw, 1.2rem);
+  line-height: 1.35;
+}
+
+.thought-divider {
+  height: 3px;
+  width: 55%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 217, 137, 0.9), rgba(255, 173, 58, 0.18));
 }
 
 .thought-detail {
   font-size: 0.93rem;
+  color: rgba(255, 244, 223, 0.95);
 }
 
 .card-actions-inline {
@@ -202,9 +243,9 @@ ol {
   width: 38px;
   height: 38px;
   border-radius: 999px;
-  border: 1px solid #d6d7dc;
-  background: rgba(249, 249, 249, 0.82);
-  color: #17191d;
+  border: 1px solid rgba(255, 221, 164, 0.55);
+  background: rgba(92, 42, 4, 0.34);
+  color: rgba(255, 238, 205, 0.98);
   font: inherit;
   font-size: 1.1rem;
   line-height: 1;
@@ -220,9 +261,9 @@ ol {
 }
 
 .icon-btn.is-favorited {
-  background: #121317;
-  border-color: #121317;
-  color: #fff;
+  background: rgba(255, 210, 130, 0.92);
+  border-color: rgba(255, 224, 167, 0.95);
+  color: #5a2d05;
 }
 
 .control-block {
