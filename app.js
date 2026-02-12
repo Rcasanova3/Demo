@@ -51,8 +51,6 @@ const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
 const anotherBtn = document.getElementById("anotherBtn");
-const saveBtn = document.getElementById("saveBtn");
-const shareBtn = document.getElementById("shareBtn");
 const postActions = document.getElementById("postActions");
 
 const savedList = document.getElementById("savedList");
@@ -319,11 +317,11 @@ const renderThought = (card, animate = true) => {
         <span class="thought-tag">MESSAGE</span>
         <span class="last-shown">Last shown: ${new Date(card.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
         <button type="button" class="icon-btn icon-star ${saved ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${saved ? "★" : "☆"}</button>
+        <button type="button" class="icon-btn" id="cardShareBtn" aria-label="Share thought">⤴</button>
       </p>
       <p class="thought-text">${card.main}</p>
       <div class="thought-divider" aria-hidden="true"></div>
       <p class="thought-detail"><strong>Why this helps:</strong> ${card.why}</p>
-      <p class="thought-detail"><strong>Do this now:</strong> ${card.do}</p>
     </article>
   `;
 
@@ -331,6 +329,10 @@ const renderThought = (card, animate = true) => {
     toggleCurrentThoughtSaved();
     renderThought(card, false);
     renderSaved();
+  });
+
+  document.getElementById("cardShareBtn")?.addEventListener("click", () => {
+    shareThought(card);
   });
 
   if (postActions) postActions.hidden = false;
@@ -465,11 +467,6 @@ const initHomePage = () => {
 
   revealBtn?.addEventListener("click", () => revealThought(null));
   anotherBtn?.addEventListener("click", () => revealThought(appState.currentCard?.id || null));
-  saveBtn?.addEventListener("click", () => {
-    saveCurrentThought();
-    renderThought(appState.currentCard, false);
-  });
-  shareBtn?.addEventListener("click", () => shareThought());
 
   try {
     const last = JSON.parse(safeStorageGet(STORAGE_KEYS.lastThought) || "null");
