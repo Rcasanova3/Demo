@@ -28,6 +28,12 @@
         </header>
 
         <section class="panel favorites-page-panel">
+          <div class="saved-filter-row" role="group" aria-label="Filter saved thoughts">
+            <span class="saved-filter-label">Saved:</span>
+            <button type="button" class="filter-btn is-active" data-saved-filter="all">All</button>
+            <button type="button" class="filter-btn" data-saved-filter="personal">Personal</button>
+            <button type="button" class="filter-btn" data-saved-filter="parents">Parents</button>
+          </div>
           <ul id="savedList" class="saved-list"></ul>
           <div class="favorites-actions">
             <button id="clearSavedBtn" class="btn btn-tertiary" hidden>Clear all</button>

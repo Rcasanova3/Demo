@@ -4,13 +4,6 @@ const STORAGE_KEYS = {
   lastThought: "abetterthought.lastThought"
 };
 
-const appState = {
-  selectedCategory: "",
-  lastThoughtByCategory: {},
-  currentThought: null,
-  savedThoughts: []
-};
-
 const categoryThemes = {
   Gratitude: {
     openers: ["There is still something steady here.", "You can notice one good thing right now.", "A moment of appreciation can soften your day."],
@@ -194,7 +187,7 @@ const categoryThemes = {
   }
 };
 
-const categoryOrder = [
+const personalCategoryOrder = [
   "Gratitude",
   "Calm",
   "Joy",
@@ -229,9 +222,320 @@ const buildYearCategory = (theme) => {
   return entries;
 };
 
-const categories = Object.fromEntries(
+const personalCategories = Object.fromEntries(
   Object.entries(categoryThemes).map(([name, theme]) => [name, buildYearCategory(theme)])
 );
+
+const parentsCategoryOrder = [
+  "Patience",
+  "Overwhelm",
+  "Guilt",
+  "Anger",
+  "Tantrums",
+  "Coparenting",
+  "Connection",
+  "Discipline",
+  "Balance",
+  "Sleep",
+  "Confidence",
+  "Anxiety"
+];
+
+const parentsCategoryThemes = {
+  Patience: {
+    reminders: [
+      "My child is learning, not giving me a hard time.",
+      "Slow is still progress in parenting.",
+      "I can pause before I respond.",
+      "Calm is a skill I can practice in small moments.",
+      "I can choose one gentle sentence before giving directions.",
+      "A softer tone helps both of us regulate."
+    ],
+    reframes: [
+      "A brief pause often prevents bigger conflict.",
+      "Regulation first makes teaching easier.",
+      "Connection helps cooperation happen sooner.",
+      "One calm response can reset the room."
+    ],
+    steps: [
+      "Take one breath and lower your voice by one level.",
+      "Count to three before answering.",
+      "Put your hand on your chest and exhale slowly.",
+      "Use one short sentence instead of repeating instructions."
+    ]
+  },
+  Overwhelm: {
+    reminders: [
+      "I do not need to do everything at once.",
+      "Good enough care is still good care.",
+      "I can shrink this moment to one next step.",
+      "I can triage without guilt.",
+      "I can ask for help sooner, not later.",
+      "One task completed is a real win today."
+    ],
+    reframes: [
+      "Small prioritization lowers stress quickly.",
+      "A short reset helps me think clearly.",
+      "Reducing demands protects my energy.",
+      "One boundary can create breathing room."
+    ],
+    steps: [
+      "Pick one must-do and let one thing wait.",
+      "Set a 30-second reset timer and breathe.",
+      "Write the next task in five words.",
+      "Drink water, then start only the first step."
+    ]
+  },
+  Guilt: {
+    reminders: [
+      "I can repair without shaming myself.",
+      "Parenting mistakes are part of learning.",
+      "I can be accountable and compassionate.",
+      "A hard moment does not define me.",
+      "I can model repair for my child.",
+      "Growth matters more than perfection."
+    ],
+    reframes: [
+      "Repair builds trust over time.",
+      "Self-kindness supports better follow-through.",
+      "Learning from today helps tomorrow go better.",
+      "A short apology can be powerful."
+    ],
+    steps: [
+      "Say one clear repair sentence.",
+      "Name what you would do differently next time.",
+      "Release your shoulders and exhale once.",
+      "Offer one warm reconnecting moment."
+    ]
+  },
+  Anger: {
+    reminders: [
+      "My anger is information, not my instruction.",
+      "I can pause before I parent.",
+      "A regulated response protects the relationship.",
+      "I can be firm without being harsh.",
+      "I can come back after I cool down.",
+      "My child needs my guidance more than my intensity."
+    ],
+    reframes: [
+      "A pause lowers the chance of regret.",
+      "Body calm supports clearer boundaries.",
+      "Firm and kind can coexist.",
+      "One reset can change the direction of the moment."
+    ],
+    steps: [
+      "Exhale longer than you inhale once.",
+      "Step back one pace before speaking.",
+      "Use a short boundary sentence in a calm voice.",
+      "Name one feeling silently and let it pass."
+    ]
+  },
+  Tantrums: {
+    reminders: [
+      "Big feelings are not bad behavior.",
+      "I can be the calm while my child storms.",
+      "Safety and connection come first.",
+      "Coaching works better than lecturing in this moment.",
+      "This wave will pass.",
+      "My steadiness helps my child settle."
+    ],
+    reframes: [
+      "Regulation precedes reasoning.",
+      "Short soothing cues reduce escalation.",
+      "A calm parent is the strongest intervention.",
+      "Consistency builds security."
+    ],
+    steps: [
+      "Lower your voice and speak in short phrases.",
+      "Offer one simple choice if appropriate.",
+      "Stay nearby and breathe slowly.",
+      "Repeat one validating sentence once."
+    ]
+  },
+  Coparenting: {
+    reminders: [
+      "I can focus on the child-centered goal.",
+      "Clear communication reduces friction.",
+      "I can choose collaboration over winning.",
+      "I can keep requests specific and brief.",
+      "A shared plan helps everyone feel safer.",
+      "Respectful tone protects long-term teamwork."
+    ],
+    reframes: [
+      "Simple agreements prevent repeated arguments.",
+      "Boundaries and clarity create stability.",
+      "Less blame leaves room for solutions.",
+      "Small coordination wins matter."
+    ],
+    steps: [
+      "Send one concise child-focused message.",
+      "State one request and one timeline.",
+      "Write one sentence starting with: For consistency, can we...",
+      "Pause before replying to reduce reactivity."
+    ]
+  },
+  Connection: {
+    reminders: [
+      "Connection can happen in tiny moments.",
+      "My presence is more powerful than perfect words.",
+      "I can notice my child before I direct them.",
+      "One warm glance can reset the tone.",
+      "Small rituals build big security.",
+      "I can reconnect after a rough patch."
+    ],
+    reframes: [
+      "Brief attunement improves cooperation.",
+      "Micro-moments of warmth strengthen trust.",
+      "Repairing quickly supports emotional safety.",
+      "Consistency matters more than intensity."
+    ],
+    steps: [
+      "Give 30 seconds of full eye contact.",
+      "Name one thing your child did well.",
+      "Offer one gentle touch or smile.",
+      "Ask one curious, open question."
+    ]
+  },
+  Discipline: {
+    reminders: [
+      "Discipline means teaching, not punishing.",
+      "I can be clear and kind at the same time.",
+      "Consistency supports learning.",
+      "One boundary delivered calmly is enough.",
+      "I can focus on the skill my child is learning.",
+      "Short consequences work best when paired with connection."
+    ],
+    reframes: [
+      "Predictable limits reduce power struggles.",
+      "Calm follow-through builds trust.",
+      "Teaching takes repetition.",
+      "Clarity lowers confusion and resistance."
+    ],
+    steps: [
+      "State the limit in one sentence.",
+      "Name the expected behavior clearly.",
+      "Follow through once, calmly.",
+      "Offer one chance to reset."
+    ]
+  },
+  Balance: {
+    reminders: [
+      "My needs matter too.",
+      "I can parent and protect my energy.",
+      "I do not need to earn rest.",
+      "A paced day helps everyone.",
+      "I can choose fewer priorities today.",
+      "Small boundaries are acts of care."
+    ],
+    reframes: [
+      "Rest improves patience and presence.",
+      "Sustainable routines prevent burnout.",
+      "One boundary protects many moments.",
+      "Balance is built, not found."
+    ],
+    steps: [
+      "Take one quiet minute before the next task.",
+      "Drop one non-essential item today.",
+      "Ask for one practical support.",
+      "Schedule one short reset block."
+    ]
+  },
+  Sleep: {
+    reminders: [
+      "Sleep challenges are seasons, not forever.",
+      "I can simplify tonight's plan.",
+      "My tiredness deserves compassion.",
+      "Small routines can create steadiness.",
+      "I can focus on the next bedtime step only.",
+      "Rest support starts with consistency."
+    ],
+    reframes: [
+      "Predictable cues can ease transitions.",
+      "Lowering stimulation helps bodies settle.",
+      "Tiny bedtime rituals add up.",
+      "A calm caregiver supports calmer sleep routines."
+    ],
+    steps: [
+      "Pick one repeatable bedtime cue tonight.",
+      "Dim lights and lower noise for 30 seconds.",
+      "Take one slow breath before bedtime tasks.",
+      "Choose one realistic sleep support step."
+    ]
+  },
+  Confidence: {
+    reminders: [
+      "I can trust my growth as a parent.",
+      "I know my child better than any perfect script.",
+      "I can lead with calm and clarity.",
+      "My effort counts, even on hard days.",
+      "I can make one grounded decision now.",
+      "I can parent from values, not fear."
+    ],
+    reframes: [
+      "Small wins build parental confidence.",
+      "Evidence over self-criticism supports better choices.",
+      "Consistent care matters most.",
+      "Practice strengthens trust in yourself."
+    ],
+    steps: [
+      "Name one thing you handled well today.",
+      "Write one parenting value guiding this choice.",
+      "Use one confident, calm sentence.",
+      "Take one small action you trust."
+    ]
+  },
+  Anxiety: {
+    reminders: [
+      "Worry means I care, and I can still ground myself.",
+      "I can come back to what is true right now.",
+      "I can parent from steadiness, not spirals.",
+      "One grounded breath can interrupt fear loops.",
+      "I can focus on what I can control today.",
+      "Support is allowed when anxiety feels heavy."
+    ],
+    reframes: [
+      "Grounding reduces mental overload.",
+      "Present-moment focus lowers anxiety intensity.",
+      "Small control actions restore agency.",
+      "Calm routines support emotional safety."
+    ],
+    steps: [
+      "Name three things you can see right now.",
+      "Put both feet down and exhale slowly.",
+      "Write one thing you can control today.",
+      "Choose one reassuring phrase and repeat it once."
+    ]
+  }
+};
+
+const buildParentsCategory = (theme) => {
+  const entries = [];
+  for (let i = 0; i < 24; i += 1) {
+    entries.push({
+      message: `${theme.reminders[i % theme.reminders.length]} ${theme.reframes[i % theme.reframes.length]}`,
+      why: "A gentle reset helps you respond with steadiness and care.",
+      action: theme.steps[i % theme.steps.length]
+    });
+  }
+  return entries;
+};
+
+const parentsCategories = Object.fromEntries(
+  Object.entries(parentsCategoryThemes).map(([name, theme]) => [name, buildParentsCategory(theme)])
+);
+
+const sectionConfigs = {
+  personal: {
+    label: "Personal",
+    categories: personalCategories,
+    order: personalCategoryOrder
+  },
+  parents: {
+    label: "Parents",
+    categories: parentsCategories,
+    order: parentsCategoryOrder
+  }
+};
 
 const safeStorageGet = (key) => {
   try {
@@ -265,25 +569,45 @@ const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
+const personalSectionBtn = document.getElementById("sectionPersonalBtn");
+const parentsSectionBtn = document.getElementById("sectionParentsBtn");
+const savedFilterBtns = document.querySelectorAll("[data-saved-filter]");
 
 const formatTimestamp = (timestamp) => {
   const d = new Date(timestamp);
   return d.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 };
 
-const fallbackThought = (category) => ({
-  category,
-  message: "No thoughts are available in this category yet, but your effort still matters.",
-  why: "A fallback keeps your reflection practice steady while content updates.",
-  action: "Take one slow breath in and out, then choose another category.",
-  timestamp: Date.now()
-});
+const appState = {
+  activeSection: "personal",
+  selectedCategoryBySection: {
+    personal: "",
+    parents: ""
+  },
+  selectedCategory: "",
+  lastThoughtByBucket: {},
+  currentThought: null,
+  savedThoughts: [],
+  savedFilter: "all"
+};
 
-const isFavorited = (category, message) =>
-  appState.savedThoughts.some((item) => item.category === category && item.message === message);
+const makeBucketKey = (section, category) => `${section}:${category}`;
+
+const getCurrentConfig = () => sectionConfigs[appState.activeSection] || sectionConfigs.personal;
+
+const getCurrentCategories = () => getCurrentConfig().categories;
+
+const getCurrentOrder = () => getCurrentConfig().order;
+
+const getCurrentSectionLabel = () => getCurrentConfig().label;
+
+const isFavorited = (section, category, text) =>
+  appState.savedThoughts.some(
+    (item) => item.section === section && item.category === category && item.text === text
+  );
 
 const getOrderedCategoryNames = (mode) => {
-  const names = Object.keys(categories);
+  const names = Object.keys(getCurrentCategories());
 
   if (mode === "descending") {
     return [...names].sort((a, b) => b.localeCompare(a));
@@ -293,7 +617,18 @@ const getOrderedCategoryNames = (mode) => {
     return [...names].sort((a, b) => a.localeCompare(b));
   }
 
-  return categoryOrder.filter((name) => names.includes(name));
+  return getCurrentOrder().filter((name) => names.includes(name));
+};
+
+const setSectionButtons = () => {
+  [personalSectionBtn, parentsSectionBtn].forEach((btn) => {
+    if (!btn) {
+      return;
+    }
+    const isActive = btn.dataset.section === appState.activeSection;
+    btn.classList.toggle("is-active", isActive);
+    btn.setAttribute("aria-selected", isActive ? "true" : "false");
+  });
 };
 
 const setRevealState = () => {
@@ -303,13 +638,25 @@ const setRevealState = () => {
   }
   if (revealHelper) {
     revealHelper.textContent = hasCategory
-      ? "Tap Reveal when you're ready."
+      ? `Tap Reveal when you're ready (${getCurrentSectionLabel()}).`
       : "Pick a category to reveal your message.";
   }
   if (activeCategoryLabel) {
-    activeCategoryLabel.textContent = hasCategory ? appState.selectedCategory : "No category selected";
+    activeCategoryLabel.textContent = hasCategory
+      ? `${getCurrentSectionLabel()} · ${appState.selectedCategory}`
+      : `${getCurrentSectionLabel()} · no category selected`;
   }
 };
+
+const fallbackThought = (section, category) => ({
+  section,
+  sectionLabel: sectionConfigs[section]?.label || "Personal",
+  category,
+  message: "No messages are available in this category yet, but your effort still matters.",
+  why: "A fallback keeps your reflection practice steady while content updates.",
+  action: "Take one slow breath in and out, then choose another category.",
+  timestamp: Date.now()
+});
 
 const buildCategoryOptions = (mode = "positive") => {
   if (!categorySelect) {
@@ -331,50 +678,91 @@ const buildCategoryOptions = (mode = "positive") => {
     categorySelect.appendChild(option);
   });
 
-  if (previous && categories[previous]) {
+  if (previous && getCurrentCategories()[previous]) {
     categorySelect.value = previous;
   }
 };
 
 const setSelectedCategory = (category) => {
+  const categories = getCurrentCategories();
   if (!category || !categories[category]) {
     appState.selectedCategory = "";
+    appState.selectedCategoryBySection[appState.activeSection] = "";
     if (categorySelect) {
       categorySelect.value = "";
     }
-    safeStorageRemove(STORAGE_KEYS.selectedCategory);
+    safeStorageSet(STORAGE_KEYS.selectedCategory, JSON.stringify(appState.selectedCategoryBySection));
     setRevealState();
     return;
   }
 
   appState.selectedCategory = category;
+  appState.selectedCategoryBySection[appState.activeSection] = category;
   if (categorySelect) {
     categorySelect.value = category;
   }
-  safeStorageSet(STORAGE_KEYS.selectedCategory, category);
+  safeStorageSet(STORAGE_KEYS.selectedCategory, JSON.stringify(appState.selectedCategoryBySection));
   setRevealState();
 };
 
-const getThoughtForCategory = (category) => {
-  const list = categories[category] || [];
-  if (!list.length) {
-    return fallbackThought(category);
+const switchSection = (section) => {
+  if (!sectionConfigs[section]) {
+    return;
   }
 
-  if (list.length === 1) {
-    const only = list[0];
-    appState.lastThoughtByCategory[category] = only.message;
-    return { ...only, category, timestamp: Date.now() };
+  appState.activeSection = section;
+  safeStorageSet("abetterthought.activeSection", section);
+  appState.selectedCategory = appState.selectedCategoryBySection[section] || "";
+  setSectionButtons();
+  buildCategoryOptions(orderFilter?.value || "positive");
+  if (categorySelect) {
+    categorySelect.value = appState.selectedCategory || "";
+  }
+  setRevealState();
+
+  if (thoughtBubble && appState.currentThought?.section !== section) {
+    thoughtBubble.innerHTML = '<p class="placeholder">Your better thought will appear here.</p>';
+  }
+};
+
+const getThoughtForCategory = (section, category) => {
+  const pool = sectionConfigs[section]?.categories?.[category] || [];
+  if (!pool.length) {
+    return fallbackThought(section, category);
   }
 
-  const previous = appState.lastThoughtByCategory[category];
-  let next = list[Math.floor(Math.random() * list.length)];
+  if (pool.length === 1) {
+    const only = pool[0];
+    appState.lastThoughtByBucket[makeBucketKey(section, category)] = only.message;
+    return {
+      section,
+      sectionLabel: sectionConfigs[section].label,
+      category,
+      message: only.message,
+      why: only.why,
+      action: only.action,
+      timestamp: Date.now()
+    };
+  }
+
+  const bucket = makeBucketKey(section, category);
+  const previous = appState.lastThoughtByBucket[bucket];
+  let next = pool[Math.floor(Math.random() * pool.length)];
   while (next.message === previous) {
-    next = list[Math.floor(Math.random() * list.length)];
+    next = pool[Math.floor(Math.random() * pool.length)];
   }
 
-  appState.lastThoughtByCategory[category] = next.message;
-  return { ...next, category, timestamp: Date.now() };
+  appState.lastThoughtByBucket[bucket] = next.message;
+
+  return {
+    section,
+    sectionLabel: sectionConfigs[section].label,
+    category,
+    message: next.message,
+    why: next.why,
+    action: next.action,
+    timestamp: Date.now()
+  };
 };
 
 const persistSaved = () => {
@@ -383,7 +771,7 @@ const persistSaved = () => {
 
 const toggleFavorite = (thought) => {
   const index = appState.savedThoughts.findIndex(
-    (item) => item.category === thought.category && item.message === thought.message
+    (item) => item.section === thought.section && item.category === thought.category && item.text === thought.message
   );
 
   if (index >= 0) {
@@ -391,9 +779,11 @@ const toggleFavorite = (thought) => {
   } else {
     appState.savedThoughts.unshift({
       id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      timestamp: Date.now(),
+      section: thought.section,
+      sectionLabel: thought.sectionLabel,
       category: thought.category,
-      message: thought.message
+      text: thought.message,
+      timestamp: Date.now()
     });
   }
 
@@ -449,29 +839,30 @@ const buildThoughtImageBlob = async (thought) => {
 
   ctx.fillStyle = "#111317";
   ctx.font = '700 58px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillText("A Better Thought", 165, 255);
+  ctx.fillText("A Better Thought", 165, 240);
 
   ctx.fillStyle = "#595f67";
-  ctx.font = '600 34px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillText(thought.category, 165, 320);
+  ctx.font = '600 30px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillText(thought.sectionLabel || "Personal", 165, 295);
+  ctx.fillText(thought.category, 165, 338);
 
   ctx.fillStyle = "rgba(255,255,255,0.95)";
   ctx.strokeStyle = "rgba(226,226,226,1)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.roundRect(150, 365, 780, 580, 36);
+  ctx.roundRect(150, 380, 780, 580, 36);
   ctx.fill();
   ctx.stroke();
 
   ctx.fillStyle = "#1f2329";
-  ctx.font = '600 50px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.font = '600 48px "Plus Jakarta Sans", Arial, sans-serif';
   wrapText(ctx, thought.message, 690)
     .slice(0, 8)
-    .forEach((line, i) => ctx.fillText(line, 195, 460 + i * 66));
+    .forEach((line, i) => ctx.fillText(line, 195, 475 + i * 64));
 
   ctx.fillStyle = "#6a7078";
   ctx.font = '400 30px "Plus Jakarta Sans", Arial, sans-serif';
-  ctx.fillText("One small shift. Big difference.", 165, 1080);
+  ctx.fillText("One small shift. Big difference.", 165, 1090);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), "image/png");
@@ -505,7 +896,7 @@ const shareThought = async (thought = appState.currentThought) => {
 
   const shareText = `${thought.message}
 
-${thought.category} · A Better Thought`;
+${thought.sectionLabel} · ${thought.category} · A Better Thought`;
 
   if (!navigator.share) {
     await downloadThoughtImage(thought);
@@ -543,21 +934,20 @@ const renderThought = (thought, animate = true) => {
     return;
   }
 
-  const favoriteActive = isFavorited(thought.category, thought.message);
-  const starSymbol = favoriteActive ? "★" : "☆";
+  const favoriteActive = isFavorited(thought.section, thought.category, thought.message);
 
   thoughtBubble.classList.remove("is-revealed");
   thoughtBubble.innerHTML = `
     <article class="thought-content">
       <p class="thought-category">
-        <span>${thought.category}</span>
+        <span>${thought.sectionLabel} · ${thought.category}</span>
         <span class="last-shown">Last shown: ${new Date(thought.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
       </p>
       <p class="thought-text">${thought.message}</p>
       <p class="thought-detail"><strong>Why this helps:</strong> ${thought.why}</p>
       <p class="thought-detail"><strong>Do this now (30 seconds):</strong> ${thought.action}</p>
       <div class="card-actions-inline">
-        <button type="button" class="icon-btn icon-star ${favoriteActive ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${starSymbol}</button>
+        <button type="button" class="icon-btn icon-star ${favoriteActive ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${favoriteActive ? "★" : "☆"}</button>
         <button type="button" class="icon-btn" id="cardShareBtn" aria-label="Share or download message">⤴</button>
       </div>
     </article>
@@ -569,18 +959,22 @@ const renderThought = (thought, animate = true) => {
     });
   }
 
-  const cardFavoriteBtn = document.getElementById("cardFavoriteBtn");
-  const cardShareBtn = document.getElementById("cardShareBtn");
-
-  cardFavoriteBtn?.addEventListener("click", () => {
+  document.getElementById("cardFavoriteBtn")?.addEventListener("click", () => {
     toggleFavorite(thought);
     renderThought(thought, false);
     renderSaved();
   });
 
-  cardShareBtn?.addEventListener("click", () => {
+  document.getElementById("cardShareBtn")?.addEventListener("click", () => {
     shareThought(thought);
   });
+};
+
+const filteredSavedThoughts = () => {
+  if (appState.savedFilter === "all") {
+    return appState.savedThoughts;
+  }
+  return appState.savedThoughts.filter((item) => item.section === appState.savedFilter);
 };
 
 const renderSaved = () => {
@@ -589,17 +983,18 @@ const renderSaved = () => {
   }
 
   savedList.innerHTML = "";
+  const list = filteredSavedThoughts();
 
-  if (!appState.savedThoughts.length) {
+  if (!list.length) {
     const empty = document.createElement("li");
     empty.className = "saved-item";
     empty.innerHTML = `
       <p class="saved-meta">DAILY AFFIRMATIONS</p>
-      <p class="saved-text">Save a thought to build your personal list.</p>
+      <p class="saved-text">No saved thoughts for this filter yet.</p>
     `;
     savedList.appendChild(empty);
     if (clearSavedBtn) {
-      clearSavedBtn.hidden = true;
+      clearSavedBtn.hidden = appState.savedThoughts.length === 0;
     }
     return;
   }
@@ -608,12 +1003,12 @@ const renderSaved = () => {
     clearSavedBtn.hidden = false;
   }
 
-  appState.savedThoughts.forEach((item) => {
+  list.forEach((item) => {
     const li = document.createElement("li");
     li.className = "saved-item";
     li.innerHTML = `
-      <p class="saved-meta">${formatTimestamp(item.timestamp)} · ${item.category}</p>
-      <p class="saved-text">${item.message}</p>
+      <p class="saved-meta">${formatTimestamp(item.timestamp)} · ${item.sectionLabel || item.section} · ${item.category}</p>
+      <p class="saved-text">${item.text}</p>
       <div class="saved-actions">
         <button type="button" class="icon-btn icon-star is-favorited" data-unfavorite-id="${item.id}" aria-label="Remove from favorites">★</button>
         <button type="button" class="icon-btn" data-share-id="${item.id}" aria-label="Share or download favorite">⤴</button>
@@ -639,10 +1034,11 @@ const renderSaved = () => {
       if (!thought) {
         return;
       }
-
       shareThought({
+        section: thought.section,
+        sectionLabel: thought.sectionLabel,
         category: thought.category,
-        message: thought.message,
+        message: thought.text,
         why: "",
         action: "",
         timestamp: thought.timestamp
@@ -657,7 +1053,7 @@ const revealThought = () => {
     return;
   }
 
-  renderThought(getThoughtForCategory(appState.selectedCategory));
+  renderThought(getThoughtForCategory(appState.activeSection, appState.selectedCategory));
 };
 
 const restoreSavedThoughts = () => {
@@ -675,19 +1071,37 @@ const restoreSavedThoughts = () => {
 const restoreState = () => {
   restoreSavedThoughts();
 
-  const storedCategory = safeStorageGet(STORAGE_KEYS.selectedCategory);
-  if (storedCategory && categories[storedCategory]) {
-    appState.selectedCategory = storedCategory;
+  const storedSection = safeStorageGet("abetterthought.activeSection");
+  if (storedSection && sectionConfigs[storedSection]) {
+    appState.activeSection = storedSection;
   }
+
+  try {
+    const rawSelected = safeStorageGet(STORAGE_KEYS.selectedCategory);
+    const parsed = rawSelected ? JSON.parse(rawSelected) : null;
+    if (parsed && typeof parsed === "object") {
+      appState.selectedCategoryBySection = {
+        personal: parsed.personal || "",
+        parents: parsed.parents || ""
+      };
+    } else if (typeof rawSelected === "string" && rawSelected && !rawSelected.startsWith("{")) {
+      appState.selectedCategoryBySection.personal = rawSelected;
+    }
+  } catch {
+    appState.selectedCategoryBySection = { personal: "", parents: "" };
+  }
+
+  appState.selectedCategory = appState.selectedCategoryBySection[appState.activeSection] || "";
 
   const storedOrder = safeStorageGet("abetterthought.orderFilter");
   if (storedOrder && orderFilter) {
     orderFilter.value = storedOrder;
   }
 
+  setSectionButtons();
   if (orderFilter && categorySelect) {
     buildCategoryOptions(orderFilter.value);
-    if (appState.selectedCategory && categories[appState.selectedCategory]) {
+    if (appState.selectedCategory && getCurrentCategories()[appState.selectedCategory]) {
       categorySelect.value = appState.selectedCategory;
     }
   }
@@ -698,19 +1112,23 @@ const restoreState = () => {
     const rawThought = safeStorageGet(STORAGE_KEYS.lastThought);
     if (rawThought) {
       const parsed = JSON.parse(rawThought);
-      if (parsed?.category && parsed?.message) {
+      if (parsed?.category && parsed?.message && parsed?.section) {
         appState.currentThought = parsed;
-        appState.lastThoughtByCategory[parsed.category] = parsed.message;
-        renderThought(
-          {
-            category: parsed.category,
-            message: parsed.message,
-            why: parsed.why || "This reminder helps you pause and respond with intention.",
-            action: parsed.action || "Take one slow breath and choose your next kind step.",
-            timestamp: parsed.timestamp || Date.now()
-          },
-          false
-        );
+        appState.lastThoughtByBucket[makeBucketKey(parsed.section, parsed.category)] = parsed.message;
+        if (parsed.section === appState.activeSection) {
+          renderThought(
+            {
+              section: parsed.section,
+              sectionLabel: parsed.sectionLabel || sectionConfigs[parsed.section]?.label || "Personal",
+              category: parsed.category,
+              message: parsed.message,
+              why: parsed.why || "This reminder helps you pause and respond with intention.",
+              action: parsed.action || "Take one slow breath and choose your next kind step.",
+              timestamp: parsed.timestamp || Date.now()
+            },
+            false
+          );
+        }
       }
     }
   } catch {
@@ -724,7 +1142,7 @@ const initHomePage = () => {
   orderFilter?.addEventListener("change", (event) => {
     safeStorageSet("abetterthought.orderFilter", event.target.value);
     buildCategoryOptions(event.target.value);
-    if (appState.selectedCategory && categories[appState.selectedCategory]) {
+    if (appState.selectedCategory && getCurrentCategories()[appState.selectedCategory]) {
       categorySelect.value = appState.selectedCategory;
     }
   });
@@ -735,11 +1153,36 @@ const initHomePage = () => {
 
   revealBtn?.addEventListener("click", revealThought);
 
+  [personalSectionBtn, parentsSectionBtn].forEach((btn) => {
+    btn?.addEventListener("click", () => {
+      switchSection(btn.dataset.section);
+    });
+  });
+
   restoreState();
 };
 
 const initFavoritesPage = () => {
   restoreSavedThoughts();
+
+  const savedFilter = safeStorageGet("abetterthought.savedFilter");
+  if (savedFilter && ["all", "personal", "parents"].includes(savedFilter)) {
+    appState.savedFilter = savedFilter;
+  }
+
+  savedFilterBtns.forEach((btn) => {
+    const active = btn.dataset.savedFilter === appState.savedFilter;
+    btn.classList.toggle("is-active", active);
+    btn.addEventListener("click", () => {
+      appState.savedFilter = btn.dataset.savedFilter;
+      safeStorageSet("abetterthought.savedFilter", appState.savedFilter);
+      savedFilterBtns.forEach((other) => {
+        other.classList.toggle("is-active", other === btn);
+      });
+      renderSaved();
+    });
+  });
+
   renderSaved();
 
   clearSavedBtn?.addEventListener("click", () => {

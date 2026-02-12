@@ -27,6 +27,14 @@
           <p class="subtext">One small shift. Big difference.</p>
         </header>
 
+        <section class="panel section-switch-panel" aria-label="Section selector">
+          <p class="how-title">Choose section</p>
+          <div class="section-switch" role="tablist" aria-label="Thought section">
+            <button type="button" id="sectionPersonalBtn" class="switch-btn is-active" data-section="personal" role="tab" aria-selected="true">Personal</button>
+            <button type="button" id="sectionParentsBtn" class="switch-btn" data-section="parents" role="tab" aria-selected="false">Parents</button>
+          </div>
+        </section>
+
         <section class="panel onboarding">
           <h2>Choose a support category</h2>
           <p class="how-title">How this works</p>
@@ -59,7 +67,7 @@
               <option value="">Select a category</option>
             </select>
 
-            <button id="revealBtn" class="btn btn-primary" disabled>Reveal message</button>
+            <button id="revealBtn" class="btn btn-primary" disabled>Reveal a better thought</button>
           </div>
 
           <div class="favorites-link-wrap">
