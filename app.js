@@ -302,10 +302,7 @@ const activeCategoryLabel = document.getElementById("activeCategoryLabel");
 const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
-const actionRow = document.getElementById("actionRow");
-const anotherBtn = document.getElementById("anotherBtn");
-const saveBtn = document.getElementById("saveBtn");
-const shareBtn = document.getElementById("shareBtn");
+const orderFilter = document.getElementById("orderFilter");
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
 const savedFilterBtns = document.querySelectorAll("[data-saved-filter]");
@@ -412,10 +409,18 @@ const renderSpaceSwitch = () => {
   });
 };
 
+const getOrderedCategories = (mode) => {
+  const names = [...SPACES[appState.activeSpace]];
+  if (mode === "descending") return names.sort((a, b) => b.localeCompare(a));
+  if (mode === "ascending" || mode === "alphabetical") return names.sort((a, b) => a.localeCompare(b));
+  return names;
+};
+
 const renderCategoryOptions = () => {
   if (!categorySelect) return;
+  const mode = orderFilter?.value || "positive";
   categorySelect.innerHTML = '<option value="">Select a category</option>';
-  SPACES[appState.activeSpace].forEach((category) => {
+  getOrderedCategories(mode).forEach((category) => {
     const option = document.createElement("option");
     option.value = category;
     option.textContent = category;
@@ -436,7 +441,6 @@ const switchSpace = (space) => {
 
   if (thoughtBubble && (!appState.currentThought || appState.currentThought.space !== space)) {
     thoughtBubble.innerHTML = '<p class="placeholder">Your better thought will appear here.</p>';
-    actionRow.hidden = true;
   }
 };
 
@@ -557,16 +561,22 @@ const renderThought = (thought, animate = true) => {
   safeStorageSet(STORAGE_KEYS.lastThought, JSON.stringify(thought));
   if (!thoughtBubble) return;
 
+  const saved = isSaved(thought.space, thought.category, thought.message);
+
   thoughtBubble.classList.remove("is-revealed");
   thoughtBubble.innerHTML = `
     <article class="thought-content">
       <p class="thought-category">
-        <span>${thought.space} · ${thought.category}</span>
+        <span>${thought.category}</span>
         <span class="last-shown">Last shown: ${new Date(thought.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
       </p>
       <p class="thought-text">${thought.message}</p>
       <p class="thought-detail"><strong>Why this helps:</strong> ${thought.why}</p>
       <p class="thought-detail"><strong>Do this now (30 seconds):</strong> ${thought.action}</p>
+      <div class="card-actions-inline">
+        <button type="button" class="icon-btn icon-star ${saved ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${saved ? "★" : "☆"}</button>
+        <button type="button" class="icon-btn" id="cardShareBtn" aria-label="Share thought">⤴</button>
+      </div>
     </article>
   `;
 
@@ -574,10 +584,15 @@ const renderThought = (thought, animate = true) => {
     requestAnimationFrame(() => thoughtBubble.classList.add("is-revealed"));
   }
 
-  if (actionRow) actionRow.hidden = false;
-  saveBtn.textContent = isSaved(thought.space, thought.category, thought.message)
-    ? "Saved"
-    : "Save this thought";
+  document.getElementById("cardFavoriteBtn")?.addEventListener("click", () => {
+    toggleSaved(thought);
+    renderThought(thought, false);
+    renderSaved();
+  });
+
+  document.getElementById("cardShareBtn")?.addEventListener("click", () => {
+    shareThought(thought);
+  });
 };
 
 const revealThought = () => {
@@ -691,22 +706,14 @@ const initHomePage = () => {
     setRevealState();
   });
 
-  revealBtn?.addEventListener("click", revealThought);
-  anotherBtn?.addEventListener("click", revealThought);
-
-  saveBtn?.addEventListener("click", () => {
-    if (!appState.currentThought) return;
-    toggleSaved(appState.currentThought);
-    saveBtn.textContent = isSaved(
-      appState.currentThought.space,
-      appState.currentThought.category,
-      appState.currentThought.message
-    )
-      ? "Saved"
-      : "Save this thought";
+  orderFilter?.addEventListener("change", () => {
+    renderCategoryOptions();
+    if (appState.selectedCategory) {
+      categorySelect.value = appState.selectedCategory;
+    }
   });
 
-  shareBtn?.addEventListener("click", () => shareThought(appState.currentThought));
+  revealBtn?.addEventListener("click", revealThought);
 
   restoreState();
 };

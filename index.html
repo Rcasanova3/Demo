@@ -48,18 +48,20 @@
           </div>
 
           <div class="control-block">
+            <label for="orderFilter">Organize categories:</label>
+            <select id="orderFilter">
+              <option value="positive">Positive to negative emotions</option>
+              <option value="alphabetical">Alphabetical</option>
+              <option value="ascending">Ascending</option>
+              <option value="descending">Descending</option>
+            </select>
+
             <label for="categorySelect">Pick a category:</label>
             <select id="categorySelect">
               <option value="">Select a category</option>
             </select>
 
-            <button id="revealBtn" class="btn btn-primary" disabled>Reveal a better thought</button>
-          </div>
-
-          <div class="action-row" id="actionRow" hidden>
-            <button id="anotherBtn" class="btn btn-secondary">Show me another better thought</button>
-            <button id="saveBtn" class="btn btn-secondary">Save this thought</button>
-            <button id="shareBtn" class="btn btn-secondary">Share this thought</button>
+            <button id="revealBtn" class="btn btn-primary" disabled>Reveal message</button>
           </div>
 
           <div class="favorites-link-wrap">
