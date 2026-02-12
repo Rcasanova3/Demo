@@ -24,6 +24,7 @@ A calming static web app for daily affirmations and practical psychological micr
   - last revealed card
   - "Last shown" timestamp on reload
 - Save favorites locally with remove actions
+- Share button exports a minimalist JPEG affirmation card for sharing across apps
 - Glass-style, mood-stabilizing UI palette for a gentle experience
 
 ## Run locally

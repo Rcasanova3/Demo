@@ -329,6 +329,9 @@ h2 {
 
 .message-actions {
   margin-top: 0.7rem;
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
 }
 
 .reveal-in {

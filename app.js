@@ -37,7 +37,7 @@ const buildYearCategory = (config) => {
     const action = config.actions[i % config.actions.length];
 
     entries.push({
-      message: `Day ${i + 1}: ${opener} ${focus} ${anchor}.`,
+      message: `${opener} ${focus} ${anchor}.`,
       why: `${mechanism} ${config.whyTail}`,
       action: `${action} ${config.actionTail}`
     });
@@ -249,13 +249,112 @@ const categoryTitle = document.getElementById("categoryTitle");
 const revealHint = document.getElementById("revealHint");
 const messageBox = document.getElementById("messageBox");
 const drawBtn = document.getElementById("drawBtn");
-const drawAnotherBtn = document.getElementById("drawAnotherBtn");
 const favoritesList = document.getElementById("favoritesList");
 const favoritesEmpty = document.getElementById("favoritesEmpty");
 
 const formatTime = (timestamp) => {
   const date = new Date(timestamp);
   return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+};
+
+const wrapText = (ctx, text, maxWidth) => {
+  const words = text.split(" ");
+  const lines = [];
+  let line = "";
+
+  words.forEach((word) => {
+    const testLine = line ? `${line} ${word}` : word;
+    const width = ctx.measureText(testLine).width;
+
+    if (width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = testLine;
+    }
+  });
+
+  if (line) {
+    lines.push(line);
+  }
+
+  return lines;
+};
+
+const generateAffirmationJpeg = (text) => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1350;
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    return Promise.resolve(null);
+  }
+
+  ctx.fillStyle = "#e7e7e5";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#1a1a1a";
+  ctx.font = "700 124px Georgia, 'Times New Roman', serif";
+  ctx.fillText("MindLift", 120, 250);
+
+  ctx.font = "italic 48px Georgia, 'Times New Roman', serif";
+  ctx.fillText("affirmation", 120, 320);
+
+  ctx.strokeStyle = "#cfcfcd";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(120, 390);
+  ctx.lineTo(960, 390);
+  ctx.stroke();
+
+  ctx.fillStyle = "#202020";
+  ctx.font = "600 64px Georgia, 'Times New Roman', serif";
+  const lines = wrapText(ctx, text, 820);
+  lines.slice(0, 8).forEach((line, index) => {
+    ctx.fillText(line, 120, 520 + index * 90);
+  });
+
+  ctx.fillStyle = "#555";
+  ctx.font = "400 34px Georgia, 'Times New Roman', serif";
+  ctx.fillText("mindlift daily", 120, 1220);
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.92);
+  });
+};
+
+const shareAffirmationImage = async (text) => {
+  const blob = await generateAffirmationJpeg(text);
+
+  if (!blob) {
+    window.alert("Unable to generate image on this device.");
+    return;
+  }
+
+  const file = new File([blob], "mindlift-affirmation.jpg", { type: "image/jpeg" });
+
+  if (navigator.share && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({
+        title: "MindLift Daily Affirmation",
+        text: text,
+        files: [file]
+      });
+      return;
+    } catch {
+      // fallback to download
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "mindlift-affirmation.jpg";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 };
 
 const persistSelectedCategory = () => {
@@ -303,6 +402,7 @@ const buildMessageCardHTML = (entry, timestamp, showAnimation = true) => {
       <p><strong>Do this now (30 seconds):</strong> ${entry.action}</p>
       <div class="message-actions">
         <button id="saveMessageBtn" class="secondary-btn" type="button">Save</button>
+        <button id="shareMessageBtn" class="secondary-btn" type="button">Share</button>
       </div>
     </article>
   `;
@@ -313,6 +413,8 @@ const renderMessageCard = (entry, timestamp, showAnimation = true) => {
   messageBox.innerHTML = buildMessageCardHTML(entry, timestamp, showAnimation);
 
   const saveBtn = document.getElementById("saveMessageBtn");
+  const shareBtn = document.getElementById("shareMessageBtn");
+
   saveBtn?.addEventListener("click", () => {
     const alreadySaved = appState.favorites.some(
       (favorite) => favorite.category === entry.category && favorite.message === entry.message
@@ -332,6 +434,10 @@ const renderMessageCard = (entry, timestamp, showAnimation = true) => {
     persistFavorites();
     renderFavorites();
     saveBtn.textContent = "Saved";
+  });
+
+  shareBtn?.addEventListener("click", async () => {
+    await shareAffirmationImage(entry.message);
   });
 };
 
@@ -439,7 +545,6 @@ const revealMessage = (showAnimation = true) => {
 
   renderMessageCard(entry, timestamp, showAnimation);
   saveLastReveal(entry, timestamp);
-  drawAnotherBtn.hidden = false;
 };
 
 const restoreFromStorage = () => {
@@ -477,8 +582,7 @@ const restoreFromStorage = () => {
     );
 
     appState.previousMessageByCategory[lastReveal.category] = lastReveal.message;
-    drawAnotherBtn.hidden = false;
-  } catch {
+    } catch {
     // ignore invalid localStorage payloads
   }
 };
@@ -504,9 +608,6 @@ drawBtn.addEventListener("click", () => {
   revealMessage(true);
 });
 
-drawAnotherBtn.addEventListener("click", () => {
-  revealMessage(true);
-});
 
 buildCategoryButtons();
 loadFavorites();
