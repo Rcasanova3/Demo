@@ -8,8 +8,9 @@ A calm, mobile-first static web app that helps people shift their mindset with c
 - Category dropdown picker with ordering filter
 - Reveal flow with tailored thought + why it helps + 30-second action
 - Reveal flow uses **Reveal message** and avoids immediate repeats in the same category
-- Save thoughts to localStorage with timestamp + category
-- Dedicated `favorites.html` page to review/remove saved thoughts or clear all
+- Share icon on cards supports quick share/download
+- Star icon on each revealed message toggles favorite on/off (filled when favorited, unfilled when not)
+- Dedicated `favorites.html` page to review favorites with per-card star (unfavorite), per-card share icon, and clear all
 - Persists selected category and last revealed thought between visits
 - Share flow on phones using Web Share API:
   - Attempts to share a generated PNG thought card (canvas)

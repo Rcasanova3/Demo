@@ -263,10 +263,6 @@ const activeCategoryLabel = document.getElementById("activeCategoryLabel");
 const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
-const actionRow = document.getElementById("actionRow");
-const saveBtn = document.getElementById("saveBtn");
-const shareBtn = document.getElementById("shareBtn");
-const downloadBtn = document.getElementById("downloadBtn");
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
 
@@ -282,6 +278,9 @@ const fallbackThought = (category) => ({
   action: "Take one slow breath in and out, then choose another category.",
   timestamp: Date.now()
 });
+
+const isFavorited = (category, message) =>
+  appState.savedThoughts.some((item) => item.category === category && item.message === message);
 
 const getOrderedCategoryNames = (mode) => {
   const names = Object.keys(categories);
@@ -299,16 +298,25 @@ const getOrderedCategoryNames = (mode) => {
 
 const setRevealState = () => {
   const hasCategory = Boolean(appState.selectedCategory);
-  if (revealBtn) revealBtn.disabled = !hasCategory;
-  if (revealHelper) revealHelper.textContent = hasCategory
-    ? "Tap Reveal when you're ready."
-    : "Pick a category to reveal your message.";
-  if (activeCategoryLabel) activeCategoryLabel.textContent = hasCategory ? appState.selectedCategory : "No category selected";
+  if (revealBtn) {
+    revealBtn.disabled = !hasCategory;
+  }
+  if (revealHelper) {
+    revealHelper.textContent = hasCategory
+      ? "Tap Reveal when you're ready."
+      : "Pick a category to reveal your message.";
+  }
+  if (activeCategoryLabel) {
+    activeCategoryLabel.textContent = hasCategory ? appState.selectedCategory : "No category selected";
+  }
 };
 
 const buildCategoryOptions = (mode = "positive") => {
+  if (!categorySelect) {
+    return;
+  }
+
   const previous = appState.selectedCategory || categorySelect.value;
-  if (!categorySelect) return;
   categorySelect.innerHTML = "";
 
   const placeholder = document.createElement("option");
@@ -331,14 +339,18 @@ const buildCategoryOptions = (mode = "positive") => {
 const setSelectedCategory = (category) => {
   if (!category || !categories[category]) {
     appState.selectedCategory = "";
-    if (categorySelect) categorySelect.value = "";
+    if (categorySelect) {
+      categorySelect.value = "";
+    }
     safeStorageRemove(STORAGE_KEYS.selectedCategory);
     setRevealState();
     return;
   }
 
   appState.selectedCategory = category;
-  if (categorySelect) categorySelect.value = category;
+  if (categorySelect) {
+    categorySelect.value = category;
+  }
   safeStorageSet(STORAGE_KEYS.selectedCategory, category);
   setRevealState();
 };
@@ -365,108 +377,27 @@ const getThoughtForCategory = (category) => {
   return { ...next, category, timestamp: Date.now() };
 };
 
-const renderThought = (thought, animate = true) => {
-  appState.currentThought = thought;
-  safeStorageSet(STORAGE_KEYS.lastThought, JSON.stringify(thought));
-
-  if (!thoughtBubble) return;
-  thoughtBubble.classList.remove("is-revealed");
-  thoughtBubble.innerHTML = `
-    <article class="thought-content">
-      <p class="thought-category">
-        <span>${thought.category}</span>
-        <span class="last-shown">Last shown: ${new Date(thought.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
-      </p>
-      <p class="thought-text">${thought.message}</p>
-      <p class="thought-detail"><strong>Why this helps:</strong> ${thought.why}</p>
-      <p class="thought-detail"><strong>Do this now (30 seconds):</strong> ${thought.action}</p>
-    </article>
-  `;
-
-  if (animate) {
-    requestAnimationFrame(() => {
-      thoughtBubble.classList.add("is-revealed");
-    });
-  }
-
-  if (actionRow) actionRow.hidden = false;
-};
-
-const revealThought = () => {
-  if (!appState.selectedCategory) {
-    setRevealState();
-    return;
-  }
-
-  renderThought(getThoughtForCategory(appState.selectedCategory));
-};
-
 const persistSaved = () => {
   safeStorageSet(STORAGE_KEYS.savedThoughts, JSON.stringify(appState.savedThoughts));
 };
 
-const renderSaved = () => {
-  if (!savedList) return;
-  savedList.innerHTML = "";
-
-  if (!appState.savedThoughts.length) {
-    const empty = document.createElement("li");
-    empty.className = "saved-item";
-    empty.innerHTML = `
-      <p class="saved-meta">DAILY AFFIRMATIONS</p>
-      <p class="saved-text">Save a thought to build your personal list.</p>
-    `;
-    savedList.appendChild(empty);
-    if (clearSavedBtn) clearSavedBtn.hidden = true;
-    return;
-  }
-
-  if (clearSavedBtn) clearSavedBtn.hidden = false;
-
-  appState.savedThoughts.forEach((item) => {
-    const li = document.createElement("li");
-    li.className = "saved-item";
-    li.innerHTML = `
-      <p class="saved-meta">${formatTimestamp(item.timestamp)} · ${item.category}</p>
-      <p class="saved-text">${item.message}</p>
-      <div class="saved-actions">
-        <button type="button" class="btn btn-tertiary" data-remove-id="${item.id}">Remove</button>
-      </div>
-    `;
-    savedList.appendChild(li);
-  });
-
-  savedList.querySelectorAll("[data-remove-id]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      appState.savedThoughts = appState.savedThoughts.filter((item) => item.id !== btn.dataset.removeId);
-      persistSaved();
-      renderSaved();
-    });
-  });
-};
-
-const saveCurrentThought = () => {
-  if (!appState.currentThought) {
-    return;
-  }
-
-  const duplicate = appState.savedThoughts.some(
-    (item) => item.category === appState.currentThought.category && item.message === appState.currentThought.message
+const toggleFavorite = (thought) => {
+  const index = appState.savedThoughts.findIndex(
+    (item) => item.category === thought.category && item.message === thought.message
   );
 
-  if (duplicate) {
-    return;
+  if (index >= 0) {
+    appState.savedThoughts.splice(index, 1);
+  } else {
+    appState.savedThoughts.unshift({
+      id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      timestamp: Date.now(),
+      category: thought.category,
+      message: thought.message
+    });
   }
 
-  appState.savedThoughts.unshift({
-    id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    timestamp: Date.now(),
-    category: appState.currentThought.category,
-    message: appState.currentThought.message
-  });
-
   persistSaved();
-  renderSaved();
 };
 
 const wrapText = (ctx, text, maxWidth) => {
@@ -547,12 +478,12 @@ const buildThoughtImageBlob = async (thought) => {
   });
 };
 
-const downloadThoughtImage = async () => {
-  if (!appState.currentThought) {
+const downloadThoughtImage = async (thought = appState.currentThought) => {
+  if (!thought) {
     return;
   }
 
-  const blob = await buildThoughtImageBlob(appState.currentThought);
+  const blob = await buildThoughtImageBlob(thought);
   if (!blob) {
     return;
   }
@@ -567,21 +498,21 @@ const downloadThoughtImage = async () => {
   URL.revokeObjectURL(url);
 };
 
-const shareThought = async () => {
-  if (!appState.currentThought) {
+const shareThought = async (thought = appState.currentThought) => {
+  if (!thought) {
     return;
   }
 
-  const shareText = `${appState.currentThought.message}
+  const shareText = `${thought.message}
 
-${appState.currentThought.category} · A Better Thought`;
+${thought.category} · A Better Thought`;
 
   if (!navigator.share) {
-    await downloadThoughtImage();
+    await downloadThoughtImage(thought);
     return;
   }
 
-  const blob = await buildThoughtImageBlob(appState.currentThought);
+  const blob = await buildThoughtImageBlob(thought);
   const file = blob ? new File([blob], "a-better-thought.png", { type: "image/png" }) : null;
 
   if (file && navigator.canShare?.({ files: [file] })) {
@@ -600,11 +531,136 @@ ${appState.currentThought.category} · A Better Thought`;
   try {
     await navigator.share({ title: "A Better Thought", text: shareText });
   } catch {
-    await downloadThoughtImage();
+    await downloadThoughtImage(thought);
   }
 };
 
-const restoreState = () => {
+const renderThought = (thought, animate = true) => {
+  appState.currentThought = thought;
+  safeStorageSet(STORAGE_KEYS.lastThought, JSON.stringify(thought));
+
+  if (!thoughtBubble) {
+    return;
+  }
+
+  const favoriteActive = isFavorited(thought.category, thought.message);
+  const starSymbol = favoriteActive ? "★" : "☆";
+
+  thoughtBubble.classList.remove("is-revealed");
+  thoughtBubble.innerHTML = `
+    <article class="thought-content">
+      <p class="thought-category">
+        <span>${thought.category}</span>
+        <span class="last-shown">Last shown: ${new Date(thought.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
+      </p>
+      <p class="thought-text">${thought.message}</p>
+      <p class="thought-detail"><strong>Why this helps:</strong> ${thought.why}</p>
+      <p class="thought-detail"><strong>Do this now (30 seconds):</strong> ${thought.action}</p>
+      <div class="card-actions-inline">
+        <button type="button" class="icon-btn icon-star ${favoriteActive ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${starSymbol}</button>
+        <button type="button" class="icon-btn" id="cardShareBtn" aria-label="Share or download message">⤴</button>
+      </div>
+    </article>
+  `;
+
+  if (animate) {
+    requestAnimationFrame(() => {
+      thoughtBubble.classList.add("is-revealed");
+    });
+  }
+
+  const cardFavoriteBtn = document.getElementById("cardFavoriteBtn");
+  const cardShareBtn = document.getElementById("cardShareBtn");
+
+  cardFavoriteBtn?.addEventListener("click", () => {
+    toggleFavorite(thought);
+    renderThought(thought, false);
+    renderSaved();
+  });
+
+  cardShareBtn?.addEventListener("click", () => {
+    shareThought(thought);
+  });
+};
+
+const renderSaved = () => {
+  if (!savedList) {
+    return;
+  }
+
+  savedList.innerHTML = "";
+
+  if (!appState.savedThoughts.length) {
+    const empty = document.createElement("li");
+    empty.className = "saved-item";
+    empty.innerHTML = `
+      <p class="saved-meta">DAILY AFFIRMATIONS</p>
+      <p class="saved-text">Save a thought to build your personal list.</p>
+    `;
+    savedList.appendChild(empty);
+    if (clearSavedBtn) {
+      clearSavedBtn.hidden = true;
+    }
+    return;
+  }
+
+  if (clearSavedBtn) {
+    clearSavedBtn.hidden = false;
+  }
+
+  appState.savedThoughts.forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "saved-item";
+    li.innerHTML = `
+      <p class="saved-meta">${formatTimestamp(item.timestamp)} · ${item.category}</p>
+      <p class="saved-text">${item.message}</p>
+      <div class="saved-actions">
+        <button type="button" class="icon-btn icon-star is-favorited" data-unfavorite-id="${item.id}" aria-label="Remove from favorites">★</button>
+        <button type="button" class="icon-btn" data-share-id="${item.id}" aria-label="Share or download favorite">⤴</button>
+      </div>
+    `;
+    savedList.appendChild(li);
+  });
+
+  savedList.querySelectorAll("[data-unfavorite-id]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      appState.savedThoughts = appState.savedThoughts.filter((item) => item.id !== btn.dataset.unfavoriteId);
+      persistSaved();
+      renderSaved();
+      if (appState.currentThought) {
+        renderThought(appState.currentThought, false);
+      }
+    });
+  });
+
+  savedList.querySelectorAll("[data-share-id]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const thought = appState.savedThoughts.find((item) => item.id === btn.dataset.shareId);
+      if (!thought) {
+        return;
+      }
+
+      shareThought({
+        category: thought.category,
+        message: thought.message,
+        why: "",
+        action: "",
+        timestamp: thought.timestamp
+      });
+    });
+  });
+};
+
+const revealThought = () => {
+  if (!appState.selectedCategory) {
+    setRevealState();
+    return;
+  }
+
+  renderThought(getThoughtForCategory(appState.selectedCategory));
+};
+
+const restoreSavedThoughts = () => {
   try {
     const rawSaved = safeStorageGet(STORAGE_KEYS.savedThoughts);
     appState.savedThoughts = rawSaved ? JSON.parse(rawSaved) : [];
@@ -614,6 +670,10 @@ const restoreState = () => {
   } catch {
     appState.savedThoughts = [];
   }
+};
+
+const restoreState = () => {
+  restoreSavedThoughts();
 
   const storedCategory = safeStorageGet(STORAGE_KEYS.selectedCategory);
   if (storedCategory && categories[storedCategory]) {
@@ -674,24 +734,12 @@ const initHomePage = () => {
   });
 
   revealBtn?.addEventListener("click", revealThought);
-  saveBtn?.addEventListener("click", saveCurrentThought);
-  shareBtn?.addEventListener("click", shareThought);
-  downloadBtn?.addEventListener("click", downloadThoughtImage);
 
   restoreState();
 };
 
 const initFavoritesPage = () => {
-  try {
-    const rawSaved = safeStorageGet(STORAGE_KEYS.savedThoughts);
-    appState.savedThoughts = rawSaved ? JSON.parse(rawSaved) : [];
-    if (!Array.isArray(appState.savedThoughts)) {
-      appState.savedThoughts = [];
-    }
-  } catch {
-    appState.savedThoughts = [];
-  }
-
+  restoreSavedThoughts();
   renderSaved();
 
   clearSavedBtn?.addEventListener("click", () => {
