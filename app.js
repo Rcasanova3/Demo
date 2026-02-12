@@ -56,6 +56,13 @@ const activeCategoryLabel = document.getElementById("activeCategoryLabel");
 const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
+const sharePreviewModal = document.getElementById("sharePreviewModal");
+const shareModalBackdrop = document.getElementById("shareModalBackdrop");
+const shareModalCard = document.getElementById("shareModalCard");
+const sharePreviewImg = document.getElementById("sharePreviewImg");
+const shareDownloadLink = document.getElementById("shareDownloadLink");
+const shareNativeBtn = document.getElementById("shareNativeBtn");
+const shareCloseBtn = document.getElementById("shareCloseBtn");
 
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
@@ -249,54 +256,60 @@ const roundRectPath = (ctx, x, y, w, h, r) => {
   ctx.closePath();
 };
 
-const ensureSharePreviewModal = () => {
-  let modal = document.getElementById("sharePreviewModal");
-  if (modal) return modal;
+let activeShareUrl = null;
+let activeShareBlob = null;
+let escapeListenerBound = false;
 
-  modal = document.createElement("div");
-  modal.id = "sharePreviewModal";
-  modal.className = "share-modal";
-  modal.hidden = true;
-  modal.innerHTML = `
-    <div class="share-modal-backdrop" data-close-share-modal></div>
-    <div class="share-modal-card" role="dialog" aria-modal="true" aria-label="Share image preview">
-      <h3>Share image preview</h3>
-      <img id="sharePreviewImage" alt="Preview of share image" />
-      <div class="share-modal-actions">
-        <a id="shareDownloadLink" class="btn btn-secondary" download="a-better-thought.png">Download image</a>
-        <button type="button" class="btn btn-tertiary" data-close-share-modal>Close</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
+const closeShareModal = () => {
+  if (!sharePreviewModal) return;
+  sharePreviewModal.hidden = true;
+  sharePreviewModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
 
-  modal.querySelectorAll("[data-close-share-modal]").forEach((element) => {
-    element.addEventListener("click", () => {
-      modal.hidden = true;
-      const img = modal.querySelector("#sharePreviewImage");
-      if (img?.dataset?.url) URL.revokeObjectURL(img.dataset.url);
-      if (img) {
-        img.removeAttribute("src");
-        delete img.dataset.url;
-      }
-    });
-  });
+  if (activeShareUrl) {
+    URL.revokeObjectURL(activeShareUrl);
+    activeShareUrl = null;
+  }
+  activeShareBlob = null;
 
-  return modal;
+  if (sharePreviewImg) sharePreviewImg.removeAttribute("src");
+  if (shareDownloadLink) shareDownloadLink.removeAttribute("href");
 };
 
-const openSharePreview = (blob) => {
-  const modal = ensureSharePreviewModal();
-  const img = modal.querySelector("#sharePreviewImage");
-  const download = modal.querySelector("#shareDownloadLink");
-  if (!img || !download) return;
+const openShareModal = () => {
+  if (!sharePreviewModal) return;
+  sharePreviewModal.hidden = false;
+  sharePreviewModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+};
 
-  if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
-  const url = URL.createObjectURL(blob);
-  img.src = url;
-  img.dataset.url = url;
-  download.href = url;
-  modal.hidden = false;
+const bindShareModalEvents = () => {
+  if (!sharePreviewModal || sharePreviewModal.dataset.bound === "true") return;
+
+  shareModalBackdrop?.addEventListener("click", closeShareModal);
+  shareCloseBtn?.addEventListener("click", closeShareModal);
+  shareModalCard?.addEventListener("click", (event) => event.stopPropagation());
+
+  if (!escapeListenerBound) {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && sharePreviewModal && !sharePreviewModal.hidden) {
+        closeShareModal();
+      }
+    });
+    escapeListenerBound = true;
+  }
+
+  shareNativeBtn?.addEventListener("click", async () => {
+    if (!activeShareBlob || !navigator.share) return;
+    try {
+      const file = new File([activeShareBlob], "a-better-thought.png", { type: "image/png" });
+      await navigator.share({ files: [file], title: "A Better Thought" });
+    } catch {
+      // ignore cancel/errors
+    }
+  });
+
+  sharePreviewModal.dataset.bound = "true";
 };
 
 const setShareLoadingState = (button, isLoading) => {
@@ -317,7 +330,9 @@ const setShareLoadingState = (button, isLoading) => {
   }
 };
 
-const generateShareImage = async ({ appName, tagline, category, message }) => {
+const generateShareCard = async ({ appName, tagline, space, category, message }) => {
+  await document.fonts?.ready;
+
   const outputWidth = 1080;
   const outputHeight = 1350;
   const dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -326,48 +341,46 @@ const generateShareImage = async ({ appName, tagline, category, message }) => {
   canvas.width = Math.floor(outputWidth * dpr);
   canvas.height = Math.floor(outputHeight * dpr);
   const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
+  if (!ctx) return { blob: null, url: null };
 
   ctx.scale(dpr, dpr);
 
   const bg = ctx.createLinearGradient(0, 0, outputWidth, outputHeight);
-  bg.addColorStop(0, "#eef1f3");
-  bg.addColorStop(0.55, "#f5f2ec");
-  bg.addColorStop(1, "#dfe4ea");
+  bg.addColorStop(0, "#edf0f4");
+  bg.addColorStop(0.55, "#f6f3ee");
+  bg.addColorStop(1, "#dce2e9");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, outputWidth, outputHeight);
 
-  const orbs = [
-    { x: 160, y: 210, r: 230, color: "rgba(183, 197, 211, 0.24)" },
-    { x: 900, y: 420, r: 320, color: "rgba(208, 201, 191, 0.2)" },
-    { x: 520, y: 1120, r: 280, color: "rgba(178, 191, 203, 0.18)" }
-  ];
-
-  orbs.forEach((orb) => {
+  [
+    { x: 180, y: 200, r: 240, c: "rgba(182,196,208,0.22)" },
+    { x: 900, y: 380, r: 320, c: "rgba(208,201,191,0.20)" },
+    { x: 530, y: 1100, r: 300, c: "rgba(174,188,201,0.18)" }
+  ].forEach((orb) => {
     ctx.save();
-    ctx.filter = "blur(58px)";
+    ctx.filter = "blur(62px)";
     ctx.beginPath();
-    ctx.fillStyle = orb.color;
+    ctx.fillStyle = orb.c;
     ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   });
 
-  // Top branding glass bar
-  roundRectPath(ctx, 74, 72, 932, 176, 28);
+  roundRectPath(ctx, 74, 70, 932, 190, 30);
   ctx.fillStyle = "rgba(255,255,255,0.36)";
   ctx.fill();
   ctx.strokeStyle = "rgba(255,255,255,0.62)";
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
-  roundRectPath(ctx, 98, 90, 884, 28, 14);
-  ctx.fillStyle = "rgba(255,255,255,0.32)";
+
+  roundRectPath(ctx, 98, 92, 884, 30, 14);
+  ctx.fillStyle = "rgba(255,255,255,0.31)";
   ctx.fill();
 
   ctx.save();
-  ctx.translate(130, 159);
-  ctx.strokeStyle = "rgba(39,47,59,0.82)";
-  ctx.fillStyle = "rgba(39,47,59,0.82)";
+  ctx.translate(130, 165);
+  ctx.strokeStyle = "rgba(33,41,53,0.82)";
+  ctx.fillStyle = "rgba(33,41,53,0.82)";
   ctx.lineWidth = 4;
   roundRectPath(ctx, -26, -24, 64, 44, 14);
   ctx.stroke();
@@ -377,7 +390,6 @@ const generateShareImage = async ({ appName, tagline, category, message }) => {
   ctx.lineTo(8, 23);
   ctx.closePath();
   ctx.fill();
-  // spark
   ctx.beginPath();
   ctx.moveTo(44, -20);
   ctx.lineTo(49, -7);
@@ -391,60 +403,63 @@ const generateShareImage = async ({ appName, tagline, category, message }) => {
   ctx.fill();
   ctx.restore();
 
-  ctx.fillStyle = "#1f2632";
+  ctx.fillStyle = "#1f2732";
   ctx.font = "700 56px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillText(appName, 220, 150);
+  ctx.fillText(appName, 220, 154);
 
-  ctx.fillStyle = "rgba(43,53,66,0.86)";
+  ctx.fillStyle = "rgba(43,53,66,0.9)";
   ctx.font = "500 30px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillText(tagline, 220, 195);
+  ctx.fillText(tagline, 220, 202);
 
-  // Category pill
-  const pillW = Math.min(460, Math.max(220, category.length * 21 + 90));
-  roundRectPath(ctx, (outputWidth - pillW) / 2, 308, pillW, 78, 39);
-  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  const lane = `${space} · ${category}`;
+  const pillW = Math.min(560, Math.max(260, lane.length * 18 + 96));
+  roundRectPath(ctx, (outputWidth - pillW) / 2, 306, pillW, 82, 41);
+  ctx.fillStyle = "rgba(255,255,255,0.42)";
   ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.64)";
+  ctx.strokeStyle = "rgba(255,255,255,0.66)";
   ctx.lineWidth = 1.3;
   ctx.stroke();
   roundRectPath(ctx, (outputWidth - pillW) / 2 + 16, 320, pillW - 32, 16, 8);
-  ctx.fillStyle = "rgba(255,255,255,0.28)";
-  ctx.fill();
-
-  ctx.fillStyle = "rgba(35,43,54,0.9)";
-  ctx.font = "600 34px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(category, outputWidth / 2, 358);
-  ctx.textAlign = "left";
-
-  // Hero message card
-  roundRectPath(ctx, 92, 428, 896, 802, 30);
-  ctx.fillStyle = "rgba(255,255,255,0.34)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.6)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  roundRectPath(ctx, 120, 448, 840, 20, 10);
   ctx.fillStyle = "rgba(255,255,255,0.3)";
   ctx.fill();
 
-  ctx.shadowColor = "rgba(20, 25, 35, 0.13)";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(34,42,54,0.92)";
+  ctx.font = "600 32px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillText(lane, outputWidth / 2, 360);
+  ctx.textAlign = "left";
+
+  roundRectPath(ctx, 90, 424, 900, 770, 30);
+  ctx.fillStyle = "rgba(255,255,255,0.35)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.62)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  roundRectPath(ctx, 118, 446, 844, 20, 10);
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.fill();
+
+  ctx.shadowColor = "rgba(19, 24, 35, 0.14)";
   ctx.shadowBlur = 24;
-  ctx.shadowOffsetY = 8;
-  roundRectPath(ctx, 92, 428, 896, 802, 30);
-  ctx.strokeStyle = "rgba(255,255,255,0.22)";
+  ctx.shadowOffsetY = 9;
+  roundRectPath(ctx, 90, 424, 900, 770, 30);
+  ctx.strokeStyle = "rgba(255,255,255,0.24)";
   ctx.stroke();
   ctx.shadowColor = "transparent";
 
   ctx.fillStyle = "#1d2530";
   ctx.font = "600 56px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
   const lines = wrapText(ctx, message, 760);
-  const lh = 72;
-  const blockHeight = lines.length * lh;
-  const startY = 428 + ((802 - blockHeight) / 2) + lh * 0.35;
-  lines.forEach((line, i) => ctx.fillText(line, 160, startY + i * lh));
+  const lineHeight = 72;
+  const blockHeight = lines.length * lineHeight;
+  const startY = 424 + ((770 - blockHeight) / 2) + lineHeight * 0.35;
+  lines.forEach((line, i) => ctx.fillText(line, 165, startY + i * lineHeight));
 
-  // subtle grain
+  ctx.fillStyle = "rgba(44,52,64,0.65)";
+  ctx.font = "500 25px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("rcasanova3.github.io", outputWidth / 2, 1286);
+
   const grain = ctx.createImageData(outputWidth, outputHeight);
   for (let i = 0; i < grain.data.length; i += 4) {
     const v = Math.floor(Math.random() * 255);
@@ -455,7 +470,9 @@ const generateShareImage = async ({ appName, tagline, category, message }) => {
   }
   ctx.putImageData(grain, 0, 0);
 
-  return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
+  const blob = await new Promise((resolve) => canvas.toBlob((value) => resolve(value), "image/png"));
+  const url = blob ? URL.createObjectURL(blob) : null;
+  return { blob, url };
 };
 
 const shareThought = async (card = appState.currentCard, triggerButton = null) => {
@@ -467,26 +484,36 @@ const shareThought = async (card = appState.currentCard, triggerButton = null) =
 
   setShareLoadingState(triggerButton, true);
   try {
-    const blob = await generateShareImage({
+    const { blob, url } = await generateShareCard({
       appName: "A Better Thought",
       tagline: "One small shift. Big difference.",
-      category: card.category || "Message",
+      space: card.space || appState.activeSpace || "Personal",
+      category: card.category || appState.selectedCategory || "Message",
       message: messageText
     });
-    if (!blob) {
+
+    if (!blob || !url) {
       window.alert("Could not prepare the share image.");
       return;
     }
 
+    bindShareModalEvents();
+
+    if (activeShareUrl) URL.revokeObjectURL(activeShareUrl);
+    activeShareBlob = blob;
+    activeShareUrl = url;
+
+    if (sharePreviewImg) sharePreviewImg.src = url;
+    if (shareDownloadLink) shareDownloadLink.href = url;
+
     const file = new File([blob], "a-better-thought.png", { type: "image/png" });
     const canNativeShare = Boolean(navigator.share && navigator.canShare?.({ files: [file] }));
-
-    if (canNativeShare) {
-      await navigator.share({ files: [file], title: "Share" });
-      return;
+    if (shareNativeBtn) {
+      shareNativeBtn.hidden = !canNativeShare;
+      shareNativeBtn.disabled = !canNativeShare;
     }
 
-    openSharePreview(blob);
+    openShareModal();
   } catch {
     window.alert("Could not share right now. Please try again.");
   } finally {

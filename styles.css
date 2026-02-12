@@ -452,6 +452,14 @@ select {
   cursor: wait;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
+.share-modal[hidden] {
+  display: none;
+}
+
 .share-modal {
   position: fixed;
   inset: 0;
