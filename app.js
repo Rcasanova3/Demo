@@ -565,7 +565,7 @@ const renderThought = (thought, animate = true) => {
       </p>
       <p class="thought-text">${thought.message}</p>
       <div class="thought-divider" aria-hidden="true"></div>
-      <p class="thought-detail"><strong>Why this helps:</strong> ${thought.why}</p>
+      <p class="thought-detail"><strong>How this helps:</strong> ${thought.why}</p>
       <div class="card-actions-inline">
         <button type="button" class="icon-btn icon-star ${saved ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${saved ? "★" : "☆"}</button>
         <button type="button" class="icon-btn" id="cardShareBtn" aria-label="Share thought">⤴</button>
