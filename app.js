@@ -170,12 +170,15 @@ const getNextCard = (space, category, excludeId = null) => {
   return { ...selected, space, category, timestamp: Date.now() };
 };
 
-const saveCurrentThought = () => {
-  if (!appState.currentCard) return;
-  const exists = appState.savedThoughts.some(
-    (item) => item.space === appState.currentCard.space && item.category === appState.currentCard.category && item.text === appState.currentCard.main
+const isThoughtSaved = (card) => {
+  if (!card) return false;
+  return appState.savedThoughts.some(
+    (item) => item.section === card.space && item.category === card.category && item.text === card.main
   );
-  if (exists) return;
+};
+
+const saveCurrentThought = () => {
+  if (!appState.currentCard || isThoughtSaved(appState.currentCard)) return;
 
   const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   appState.savedThoughts.unshift({
@@ -188,6 +191,23 @@ const saveCurrentThought = () => {
     timestamp: appState.currentCard.timestamp
   });
   safeStorageSet(STORAGE_KEYS.savedThoughts, JSON.stringify(appState.savedThoughts));
+};
+
+const removeCurrentThoughtFromSaved = () => {
+  if (!appState.currentCard) return;
+  appState.savedThoughts = appState.savedThoughts.filter(
+    (item) => !(item.section === appState.currentCard.space && item.category === appState.currentCard.category && item.text === appState.currentCard.main)
+  );
+  safeStorageSet(STORAGE_KEYS.savedThoughts, JSON.stringify(appState.savedThoughts));
+};
+
+const toggleCurrentThoughtSaved = () => {
+  if (!appState.currentCard) return;
+  if (isThoughtSaved(appState.currentCard)) {
+    removeCurrentThoughtFromSaved();
+  } else {
+    saveCurrentThought();
+  }
 };
 
 const wrapText = (ctx, text, maxWidth) => {
@@ -291,11 +311,14 @@ const renderThought = (card, animate = true) => {
   safeStorageSet(STORAGE_KEYS.lastThought, JSON.stringify(card));
 
   thoughtBubble.classList.remove("is-revealed");
+  const saved = isThoughtSaved(card);
+
   thoughtBubble.innerHTML = `
     <article class="thought-content">
       <p class="thought-category">
         <span class="thought-tag">MESSAGE</span>
         <span class="last-shown">Last shown: ${new Date(card.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
+        <button type="button" class="icon-btn icon-star ${saved ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${saved ? "★" : "☆"}</button>
       </p>
       <p class="thought-text">${card.main}</p>
       <div class="thought-divider" aria-hidden="true"></div>
@@ -303,6 +326,12 @@ const renderThought = (card, animate = true) => {
       <p class="thought-detail"><strong>Do this now:</strong> ${card.do}</p>
     </article>
   `;
+
+  document.getElementById("cardFavoriteBtn")?.addEventListener("click", () => {
+    toggleCurrentThoughtSaved();
+    renderThought(card, false);
+    renderSaved();
+  });
 
   if (postActions) postActions.hidden = false;
   if (animate) requestAnimationFrame(() => thoughtBubble.classList.add("is-revealed"));
@@ -436,7 +465,10 @@ const initHomePage = () => {
 
   revealBtn?.addEventListener("click", () => revealThought(null));
   anotherBtn?.addEventListener("click", () => revealThought(appState.currentCard?.id || null));
-  saveBtn?.addEventListener("click", () => saveCurrentThought());
+  saveBtn?.addEventListener("click", () => {
+    saveCurrentThought();
+    renderThought(appState.currentCard, false);
+  });
   shareBtn?.addEventListener("click", () => shareThought());
 
   try {
