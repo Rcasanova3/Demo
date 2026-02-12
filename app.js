@@ -182,24 +182,24 @@ const BASE_COMPONENTS = {
     "You can begin without being perfect."
   ],
   actions: [
-    "Write one next step in five words.",
-    "Take one slow inhale and long exhale.",
-    "Remove one distraction near you.",
-    "Start for 30 seconds.",
-    "Say one clear sentence.",
-    "Choose one priority now.",
-    "Relax your shoulders and jaw.",
-    "Finish one small task first."
+    "Write your next step in five words, then do only that.",
+    "Take one slow inhale and one long exhale.",
+    "Remove one distraction near you right now.",
+    "Set a 30-second timer and begin.",
+    "Say one clear, calm sentence.",
+    "Choose one priority and start it now.",
+    "Relax your shoulders and jaw for one breath.",
+    "Finish one small task before switching."
   ],
   closers: [
-    "Small steps count.",
-    "Keep it simple.",
-    "Steady beats rushed.",
-    "You can check in again soon.",
-    "This is enough for right now.",
-    "Stay with the next step.",
-    "You are moving forward.",
-    "Let this be your reset."
+    "This helps lower stress so you can think clearly.",
+    "This helps your brain focus on one manageable step.",
+    "This helps reduce overwhelm and build momentum.",
+    "This helps your body settle so your response is calmer.",
+    "This helps turn pressure into clear action.",
+    "This helps you regain control of the moment.",
+    "This helps you move forward without overloading yourself.",
+    "This helps create quick, steady progress."
   ]
 };
 
@@ -208,61 +208,61 @@ const spaceTone = {
     openers: ["Your inner state can shift with one kind thought."],
     reframes: ["You can meet this emotion without becoming it."],
     actions: ["Try one 30-second grounding action right now."],
-    closers: ["You are building steadiness." ]
+    closers: ["This helps you regulate emotions and respond with more clarity." ]
   },
   Work: {
     openers: ["Work gets easier when the next action is clear."],
     reframes: ["Clarity and boundaries protect your output."],
     actions: ["Define one priority and ignore the rest for 30 seconds."],
-    closers: ["Focused effort compounds." ]
+    closers: ["This helps protect attention and improve follow-through." ]
   },
   Parents: {
     openers: ["Parenting moments soften when you regulate first."],
     reframes: ["Connection often opens the door to cooperation."],
     actions: ["Use one calm sentence before the next direction."],
-    closers: ["Small steady responses build safety." ]
+    closers: ["This helps de-escalate tension and improve connection." ]
   },
   Relationships: {
     openers: ["Relational safety grows through small repairs."],
     reframes: ["Being clear and respectful can coexist."],
     actions: ["Choose one listening-first response."],
-    closers: ["Consistency builds trust." ]
+    closers: ["This helps strengthen trust and reduce misunderstandings." ]
   },
   Single: {
     openers: ["Your life can feel meaningful while still unfolding."],
     reframes: ["Self-trust grows through aligned choices."],
     actions: ["Take one 30-second action that supports your values."],
-    closers: ["Your pace is valid." ]
+    closers: ["This helps reduce pressure and supports confident choices." ]
   },
   Student: {
     openers: ["Learning works best in short focused blocks."],
     reframes: ["Progress comes from repetition, not pressure."],
     actions: ["Do one tiny study action now."],
-    closers: ["Small sessions add up quickly." ]
+    closers: ["This helps memory and progress through repetition." ]
   },
   ADHD: {
     openers: ["Start small; momentum often follows action."],
     reframes: ["External structure can reduce mental load."],
     actions: ["Pick one visible next step and begin for 30 seconds."],
-    closers: ["Resetting is part of the process." ]
+    closers: ["This helps reduce mental load and restart momentum." ]
   },
   Caregiver: {
     openers: ["Care for others works better when you include yourself."],
     reframes: ["Boundaries are a form of long-term care."],
     actions: ["Take one brief reset before the next caregiving task."],
-    closers: ["Sustainable care matters." ]
+    closers: ["This helps prevent burnout and protects your energy." ]
   },
   "Military/Veteran": {
     openers: ["Steady routines can support transition and resilience."],
     reframes: ["Strength includes recovery and adaptation."],
     actions: ["Choose one mission-sized next step for this moment."],
-    closers: ["Discipline and compassion can work together." ]
+    closers: ["This helps balance structure with recovery." ]
   },
   Entrepreneur: {
     openers: ["Build momentum by narrowing scope."],
     reframes: ["Systems beat willpower over time."],
     actions: ["Do one 30-second action that moves the business forward."],
-    closers: ["Consistency creates traction." ]
+    closers: ["This helps create predictable progress over time." ]
   }
 };
 
