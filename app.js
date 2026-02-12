@@ -10,6 +10,29 @@ const STORAGE_KEYS = {
 const { SPACES = {}, messageCards = {} } = window.APP_CONTENT || {};
 const SPACE_KEYS = Object.keys(SPACES);
 
+const PERSONAL_KEYWORDS = {
+  Gratitude: ["appreciate", "thanks", "grat", "notice"],
+  Calm: ["calm", "breath", "slow", "settle"],
+  Joy: ["joy", "pleasant", "smile", "light"],
+  Hope: ["hope", "next", "future", "possible"],
+  Confidence: ["confid", "evidence", "capable", "trust"],
+  Focused: ["focus", "priority", "single", "attention"],
+  Motivated: ["start", "momentum", "action", "begin"],
+  Connected: ["connect", "reach", "check-in", "support"],
+  Balanced: ["balance", "pace", "pause", "limit"],
+  Overwhelmed: ["overwhelm", "one", "simpl", "manageable"],
+  Anxious: ["anx", "present", "breath", "certainty"],
+  Distracted: ["distract", "attention", "close", "single"],
+  Unmotivated: ["start", "small", "first", "begin"],
+  Selfdoubt: ["doubt", "evidence", "facts", "trust"],
+  Angry: ["anger", "pause", "space", "response"],
+  Sad: ["sad", "kind", "care", "gentle"],
+  Guilt: ["guilt", "repair", "amend", "responsibility"],
+  Lonely: ["lonely", "connect", "reach", "contact"],
+  Burnout: ["burnout", "energy", "boundary", "rest"],
+  Overthinking: ["overthink", "decision", "limit", "action"]
+};
+
 const appState = {
   activeSpace: SPACE_KEYS[0] || "Personal",
   selectedCategoryBySpace: SPACE_KEYS.reduce((acc, space) => ({ ...acc, [space]: "" }), {}),
@@ -21,27 +44,10 @@ const appState = {
 };
 
 const safeStorageGet = (key) => {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
+  try { return localStorage.getItem(key); } catch { return null; }
 };
-
 const safeStorageSet = (key, value) => {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // ignore
-  }
-};
-
-const safeStorageRemove = (key) => {
-  try {
-    localStorage.removeItem(key);
-  } catch {
-    // ignore
-  }
+  try { localStorage.setItem(key, value); } catch { /* ignore */ }
 };
 
 const spaceSwitch = document.getElementById("spaceSwitch");
@@ -50,6 +56,10 @@ const activeCategoryLabel = document.getElementById("activeCategoryLabel");
 const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
+const anotherBtn = document.getElementById("anotherBtn");
+const saveBtn = document.getElementById("saveBtn");
+const shareBtn = document.getElementById("shareBtn");
+const postActions = document.getElementById("postActions");
 
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
@@ -57,24 +67,42 @@ const savedFilterControls = document.getElementById("savedFilterControls");
 
 const toFilterKey = (space) => String(space || "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const cardKey = (space, category) => `${space}::${category}`;
-
 const getCards = (space, category) => messageCards?.[space]?.[category] || [];
 
 const validateCards = () => {
   Object.entries(messageCards).forEach(([space, byCategory]) => {
     Object.entries(byCategory || {}).forEach(([category, cards]) => {
-      const seen = new Set();
-      (cards || []).forEach((card, idx) => {
-        const problems = [];
-        if (!card || typeof card !== "object") problems.push("card is not an object");
-        if (!card?.id || typeof card.id !== "string" || !card.id.trim()) problems.push("missing id");
-        if (!card?.main || typeof card.main !== "string" || !card.main.trim()) problems.push("missing main");
-        if (!card?.why || typeof card.why !== "string" || !card.why.trim()) problems.push("missing why");
-        if (!card?.do || typeof card.do !== "string" || !card.do.trim()) problems.push("missing do");
-        if (card?.id && seen.has(card.id)) problems.push(`duplicate id '${card.id}'`);
-        if (card?.id) seen.add(card.id);
-        if (problems.length) {
-          console.warn("[A Better Thought] Invalid message card", { space, category, index: idx, card, problems });
+      const ids = new Set();
+      const whyCounts = new Map();
+
+      (cards || []).forEach((card, index) => {
+        const issues = [];
+        if (!card?.id || typeof card.id !== "string" || !card.id.trim()) issues.push("missing id");
+        if (!card?.main || typeof card.main !== "string" || !card.main.trim()) issues.push("missing main");
+        if (!card?.why || typeof card.why !== "string" || !card.why.trim()) issues.push("missing why");
+        if (card?.id && ids.has(card.id)) issues.push(`duplicate id '${card.id}'`);
+        if (card?.id) ids.add(card.id);
+
+        if (issues.length) {
+          console.warn("[A Better Thought] Invalid card", { space, category, index, issues, card });
+        }
+
+        const normalizedWhy = (card?.why || "").trim().toLowerCase();
+        if (normalizedWhy) whyCounts.set(normalizedWhy, (whyCounts.get(normalizedWhy) || 0) + 1);
+
+        if (space === "Personal") {
+          const keywords = PERSONAL_KEYWORDS[category] || [];
+          const whyText = normalizedWhy;
+          const hasKeyword = keywords.some((kw) => whyText.includes(kw));
+          if (!hasKeyword) {
+            console.warn("[A Better Thought] possible mismatch", { space, category, id: card?.id, why: card?.why });
+          }
+        }
+      });
+
+      whyCounts.forEach((count, whyText) => {
+        if (count >= 4) {
+          console.warn("[A Better Thought] repeated why text", { space, category, count, why: whyText });
         }
       });
     });
@@ -84,7 +112,6 @@ const validateCards = () => {
 const setRevealState = () => {
   const hasCategory = Boolean(appState.selectedCategory);
   if (revealBtn) revealBtn.disabled = !hasCategory;
-
   if (activeCategoryLabel) {
     activeCategoryLabel.textContent = hasCategory ? `${appState.activeSpace} · ${appState.selectedCategory}` : "No category selected";
   }
@@ -98,23 +125,21 @@ const renderSpaceSwitch = () => {
   spaceSwitch.innerHTML = "";
 
   SPACE_KEYS.forEach((space) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = `space-btn ${space === appState.activeSpace ? "is-active" : ""}`;
-    btn.setAttribute("role", "tab");
-    btn.setAttribute("aria-selected", String(space === appState.activeSpace));
-    btn.textContent = space;
-
-    btn.addEventListener("click", () => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `space-btn ${space === appState.activeSpace ? "is-active" : ""}`;
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(space === appState.activeSpace));
+    button.textContent = space;
+    button.addEventListener("click", () => {
       appState.activeSpace = space;
-      safeStorageSet(STORAGE_KEYS.activeSpace, appState.activeSpace);
+      safeStorageSet(STORAGE_KEYS.activeSpace, space);
       appState.selectedCategory = appState.selectedCategoryBySpace[space] || "";
       renderSpaceSwitch();
       renderCategoryOptions();
       setRevealState();
     });
-
-    spaceSwitch.appendChild(btn);
+    spaceSwitch.appendChild(button);
   });
 };
 
@@ -138,11 +163,10 @@ const getNextCard = (space, category, excludeId = null) => {
   if (!cards.length) {
     return {
       id: `${toFilterKey(space)}-${toFilterKey(category)}-fallback`,
-      main: "One clear step is enough for this moment.",
-      why: "This helps because small concrete steps reduce overwhelm and create momentum.",
-      do: "Choose one tiny next step and begin it for 60 seconds.",
       space,
       category,
+      main: "One clear next step is enough for this moment.",
+      why: "A focused step reduces decision fatigue and gives your mind a stable target.",
       timestamp: Date.now()
     };
   }
@@ -155,15 +179,13 @@ const getNextCard = (space, category, excludeId = null) => {
     appState.shownCardIds[key] = [];
     available = cards.filter((card) => card.id !== excludeId);
   }
-
   if (!available.length) available = cards;
 
   const selected = available[Math.floor(Math.random() * available.length)];
-  const nextShown = [...(appState.shownCardIds[key] || []), selected.id];
-  appState.shownCardIds[key] = nextShown;
+  appState.shownCardIds[key] = [...(appState.shownCardIds[key] || []), selected.id];
   safeStorageSet(STORAGE_KEYS.shownCardIds, JSON.stringify(appState.shownCardIds));
 
-  return { ...selected, space, category, timestamp: Date.now() };
+  return { ...selected, timestamp: Date.now() };
 };
 
 const isThoughtSaved = (card) => {
@@ -175,15 +197,12 @@ const isThoughtSaved = (card) => {
 
 const saveCurrentThought = () => {
   if (!appState.currentCard || isThoughtSaved(appState.currentCard)) return;
-
-  const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   appState.savedThoughts.unshift({
-    id,
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     section: appState.currentCard.space,
     category: appState.currentCard.category,
     text: appState.currentCard.main,
     why: appState.currentCard.why,
-    do: appState.currentCard.do,
     timestamp: appState.currentCard.timestamp
   });
   safeStorageSet(STORAGE_KEYS.savedThoughts, JSON.stringify(appState.savedThoughts));
@@ -198,26 +217,21 @@ const removeCurrentThoughtFromSaved = () => {
 };
 
 const toggleCurrentThoughtSaved = () => {
-  if (!appState.currentCard) return;
-  if (isThoughtSaved(appState.currentCard)) {
-    removeCurrentThoughtFromSaved();
-  } else {
-    saveCurrentThought();
-  }
+  if (isThoughtSaved(appState.currentCard)) removeCurrentThoughtFromSaved();
+  else saveCurrentThought();
 };
 
 const wrapText = (ctx, text, maxWidth) => {
   const words = text.split(" ");
   const lines = [];
   let line = "";
-
   words.forEach((word) => {
-    const probe = line ? `${line} ${word}` : word;
-    if (ctx.measureText(probe).width > maxWidth && line) {
+    const trial = line ? `${line} ${word}` : word;
+    if (ctx.measureText(trial).width > maxWidth && line) {
       lines.push(line);
       line = word;
     } else {
-      line = probe;
+      line = trial;
     }
   });
   if (line) lines.push(line);
@@ -237,27 +251,8 @@ const generateShareImage = async (card) => {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1080, 1350);
 
-  ctx.fillStyle = "rgba(255,255,255,0.7)";
-  ctx.strokeStyle = "rgba(255,255,255,0.85)";
-  ctx.lineWidth = 2;
-  const x = 95;
-  const y = 150;
-  const w = 890;
-  const h = 1000;
-  const r = 48;
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.72)";
+  ctx.fillRect(96, 120, 888, 1110);
 
   ctx.fillStyle = "#1d232d";
   ctx.font = "700 54px Plus Jakarta Sans, sans-serif";
@@ -269,14 +264,18 @@ const generateShareImage = async (card) => {
 
   ctx.font = "700 46px Plus Jakarta Sans, sans-serif";
   ctx.fillStyle = "#121722";
-  wrapText(ctx, card.main, 760).forEach((line, idx) => ctx.fillText(line, 150, 440 + idx * 62));
+  wrapText(ctx, card.main, 760).forEach((line, idx) => ctx.fillText(line, 150, 430 + idx * 62));
+
+  ctx.font = "600 31px Plus Jakarta Sans, sans-serif";
+  ctx.fillStyle = "#2f3746";
+  wrapText(ctx, `Why this helps: ${card.why}`, 760).forEach((line, idx) => ctx.fillText(line, 150, 760 + idx * 48));
 
   return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
 };
 
 const shareThought = async (card = appState.currentCard) => {
   if (!card) return;
-  const text = `${card.main}\n\nWhy this helps: ${card.why}\nDo this now: ${card.do}`;
+  const text = `${card.main}\n\nWhy this helps: ${card.why}`;
 
   if (navigator.share) {
     try {
@@ -289,7 +288,7 @@ const shareThought = async (card = appState.currentCard) => {
       await navigator.share({ title: "A Better Thought", text });
       return;
     } catch {
-      // fallback below
+      // fallback
     }
   }
 
@@ -306,9 +305,8 @@ const renderThought = (card, animate = true) => {
   appState.currentCard = card;
   safeStorageSet(STORAGE_KEYS.lastThought, JSON.stringify(card));
 
-  thoughtBubble.classList.remove("is-revealed");
   const saved = isThoughtSaved(card);
-
+  thoughtBubble.classList.remove("is-revealed");
   thoughtBubble.innerHTML = `
     <article class="thought-content">
       <p class="thought-category">
@@ -328,35 +326,32 @@ const renderThought = (card, animate = true) => {
     renderThought(card, false);
     renderSaved();
   });
+  document.getElementById("cardShareBtn")?.addEventListener("click", () => shareThought(card));
 
-  document.getElementById("cardShareBtn")?.addEventListener("click", () => {
-    shareThought(card);
-  });
-
+  if (postActions) postActions.hidden = false;
   if (animate) requestAnimationFrame(() => thoughtBubble.classList.add("is-revealed"));
 };
 
 const revealThought = (excludeId = null) => {
   if (!appState.selectedCategory) return;
-  const card = getNextCard(appState.activeSpace, appState.selectedCategory, excludeId);
-  renderThought(card, true);
+  renderThought(getNextCard(appState.activeSpace, appState.selectedCategory, excludeId), true);
 };
 
 const renderSaved = () => {
   if (!savedList) return;
   savedList.innerHTML = "";
 
-  const visible = appState.savedFilter === "all"
+  const items = appState.savedFilter === "all"
     ? appState.savedThoughts
     : appState.savedThoughts.filter((item) => toFilterKey(item.section) === appState.savedFilter);
 
-  if (!visible.length) {
+  if (!items.length) {
     savedList.innerHTML = '<li class="saved-empty">No saved thoughts yet.</li>';
     if (clearSavedBtn) clearSavedBtn.hidden = appState.savedThoughts.length === 0;
     return;
   }
 
-  visible.forEach((item) => {
+  items.forEach((item) => {
     const li = document.createElement("li");
     li.className = "saved-item";
     li.innerHTML = `
@@ -385,32 +380,28 @@ const renderSaved = () => {
     btn.addEventListener("click", () => {
       const item = appState.savedThoughts.find((entry) => entry.id === btn.dataset.shareId);
       if (!item) return;
-      shareThought({ space: item.section, category: item.category, main: item.text, why: item.why || "", do: item.do || "", timestamp: item.timestamp });
+      shareThought({ space: item.section, category: item.category, main: item.text, why: item.why || "", timestamp: item.timestamp });
     });
   });
 };
 
 const renderSavedFilters = () => {
   if (!savedFilterControls) return;
-
-  const options = [
-    { value: "all", label: "All" },
-    ...SPACE_KEYS.map((space) => ({ value: toFilterKey(space), label: space }))
-  ];
-
+  const options = [{ value: "all", label: "All" }, ...SPACE_KEYS.map((space) => ({ value: toFilterKey(space), label: space }))];
   savedFilterControls.innerHTML = '<span class="saved-filter-label">Saved:</span>';
+
   options.forEach((option) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `filter-btn ${appState.savedFilter === option.value ? "is-active" : ""}`;
-    button.textContent = option.label;
-    button.addEventListener("click", () => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `filter-btn ${appState.savedFilter === option.value ? "is-active" : ""}`;
+    btn.textContent = option.label;
+    btn.addEventListener("click", () => {
       appState.savedFilter = option.value;
       safeStorageSet(STORAGE_KEYS.savedFilter, option.value);
       renderSavedFilters();
       renderSaved();
     });
-    savedFilterControls.appendChild(button);
+    savedFilterControls.appendChild(btn);
   });
 };
 
@@ -419,27 +410,19 @@ const restoreState = () => {
   if (active && SPACES[active]) appState.activeSpace = active;
 
   try {
-    const saved = JSON.parse(safeStorageGet(STORAGE_KEYS.savedThoughts) || "[]");
-    appState.savedThoughts = Array.isArray(saved) ? saved : [];
-  } catch {
-    appState.savedThoughts = [];
-  }
+    const selected = JSON.parse(safeStorageGet(STORAGE_KEYS.selectedCategoryBySpace) || "{}");
+    SPACE_KEYS.forEach((space) => { appState.selectedCategoryBySpace[space] = selected[space] || ""; });
+  } catch { /* ignore */ }
 
   try {
-    const selectedBySpace = JSON.parse(safeStorageGet(STORAGE_KEYS.selectedCategoryBySpace) || "{}");
-    SPACE_KEYS.forEach((space) => {
-      appState.selectedCategoryBySpace[space] = selectedBySpace[space] || "";
-    });
-  } catch {
-    // ignore
-  }
+    const saved = JSON.parse(safeStorageGet(STORAGE_KEYS.savedThoughts) || "[]");
+    appState.savedThoughts = Array.isArray(saved) ? saved : [];
+  } catch { appState.savedThoughts = []; }
 
   try {
     const shown = JSON.parse(safeStorageGet(STORAGE_KEYS.shownCardIds) || "{}");
     appState.shownCardIds = shown && typeof shown === "object" ? shown : {};
-  } catch {
-    appState.shownCardIds = {};
-  }
+  } catch { appState.shownCardIds = {}; }
 
   const savedFilter = safeStorageGet(STORAGE_KEYS.savedFilter);
   if (savedFilter) appState.savedFilter = savedFilter;
@@ -450,7 +433,6 @@ const restoreState = () => {
 const initHomePage = () => {
   validateCards();
   restoreState();
-
   renderSpaceSwitch();
   renderCategoryOptions();
   setRevealState();
@@ -463,13 +445,19 @@ const initHomePage = () => {
   });
 
   revealBtn?.addEventListener("click", () => revealThought(null));
+  anotherBtn?.addEventListener("click", () => revealThought(appState.currentCard?.id || null));
+  saveBtn?.addEventListener("click", () => {
+    saveCurrentThought();
+    renderThought(appState.currentCard, false);
+  });
+  shareBtn?.addEventListener("click", () => shareThought(appState.currentCard));
 
   try {
     const last = JSON.parse(safeStorageGet(STORAGE_KEYS.lastThought) || "null");
-    if (last?.space === appState.activeSpace) renderThought(last, false);
-  } catch {
-    // ignore
-  }
+    if (last?.space === appState.activeSpace && last?.category) {
+      renderThought(last, false);
+    }
+  } catch { /* ignore */ }
 };
 
 const initFavoritesPage = () => {
@@ -484,8 +472,5 @@ const initFavoritesPage = () => {
   });
 };
 
-if (document.body.dataset.page === "favorites") {
-  initFavoritesPage();
-} else {
-  initHomePage();
-}
+if (document.body.dataset.page === "favorites") initFavoritesPage();
+else initHomePage();

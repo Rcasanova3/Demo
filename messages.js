@@ -1,26 +1,8 @@
 (function () {
   const SPACES = {
     Personal: [
-      "Gratitude",
-      "Calm",
-      "Joy",
-      "Hope",
-      "Confidence",
-      "Focused",
-      "Motivated",
-      "Connected",
-      "Balanced",
-      "Overwhelmed",
-      "Anxious",
-      "Distracted",
-      "Unmotivated",
-      "Selfdoubt",
-      "Angry",
-      "Sad",
-      "Guilt",
-      "Lonely",
-      "Burnout",
-      "Overthinking"
+      "Gratitude", "Calm", "Joy", "Hope", "Confidence", "Focused", "Motivated", "Connected", "Balanced", "Overwhelmed",
+      "Anxious", "Distracted", "Unmotivated", "Selfdoubt", "Angry", "Sad", "Guilt", "Lonely", "Burnout", "Overthinking"
     ],
     Work: ["Focus", "Boundaries", "Confidence", "Clarity", "Pressure", "Conflict", "Feedback", "Priorities", "Momentum", "Balance", "Burnout", "Purpose"],
     Parents: ["Patience", "Presence", "Calm", "Consistency", "Connection", "Energy", "Guilt", "Overwhelm", "Play", "Discipline", "Partnership", "Rest"],
@@ -33,84 +15,62 @@
     Entrepreneur: ["Vision", "Focus", "Momentum", "Risk", "Clarity", "Discipline", "Consistency", "Confidence", "Burnout", "Patience", "Systems", "Growth"]
   };
 
-  const IDEAS = [
-    {
-      main: "You do not need to solve all of this at once. One clear next step is enough.",
-      why: "This helps because narrowing your focus lowers mental load and makes starting easier.",
-      do: "Write one next step and do only that step for 60 seconds."
-    },
-    {
-      main: "Slow is still progress. A steady pace often gets more done than a rushed one.",
-      why: "This helps because a calmer pace reduces errors and saves energy for what matters.",
-      do: "Take one slow breath, then continue at a pace you can sustain."
-    },
-    {
-      main: "You can be kind and clear at the same time.",
-      why: "This helps because clear communication prevents confusion and lowers tension.",
-      do: "Say one short sentence that states what you need right now."
-    },
-    {
-      main: "Start where your feet are. Use what is already in front of you.",
-      why: "This helps because immediate action builds momentum faster than overplanning.",
-      do: "Choose one item in front of you and complete the smallest useful action."
-    },
-    {
-      main: "A small reset can change the next hour.",
-      why: "This helps because short resets interrupt stress cycles and improve attention.",
-      do: "Relax your shoulders, unclench your jaw, and exhale slowly once."
-    },
-    {
-      main: "Done is more useful than perfect in this moment.",
-      why: "This helps because aiming for completion creates feedback you can improve later.",
-      do: "Finish a rough first version instead of refining details."
-    },
-    {
-      main: "You can choose the next right action even if you feel uncertain.",
-      why: "This helps because action creates clarity that thinking alone cannot provide.",
-      do: "Set a 2-minute timer and begin the task you are delaying."
-    },
-    {
-      main: "You are allowed to protect your energy.",
-      why: "This helps because energy boundaries reduce burnout and support consistent effort.",
-      do: "Pause one nonessential task and keep only the top priority active."
-    },
-    {
-      main: "Your attention is a resource. Spend it on what moves things forward.",
-      why: "This helps because directed attention increases progress and reduces scattered effort.",
-      do: "Mute one distraction and work in a single tab for 5 minutes."
-    },
-    {
-      main: "One supportive thought can shift your response.",
-      why: "This helps because self-talk influences stress levels and decision quality.",
-      do: "Replace one self-critical sentence with a practical supportive one."
-    },
-    {
-      main: "You can reset this moment without rewriting the whole day.",
-      why: "This helps because a present-moment reset prevents one hard moment from cascading.",
-      do: "Name what happened, then choose one helpful next move."
-    },
-    {
-      main: "Progress comes from repetition, not intensity.",
-      why: "This helps because consistent small actions compound into meaningful change.",
-      do: "Repeat one tiny helpful action three times today."
-    }
+  const CATEGORY_CONTEXT = {
+    Gratitude: "one detail you appreciate", Calm: "your breathing pace", Joy: "one small pleasant moment", Hope: "the next workable step",
+    Confidence: "evidence from past wins", Focused: "a single priority", Motivated: "a tiny starting action", Connected: "a meaningful check-in",
+    Balanced: "one thing to pause", Overwhelmed: "one task at a time", Anxious: "the present moment", Distracted: "one distraction to close",
+    Unmotivated: "a two-minute start", Selfdoubt: "facts instead of fear", Angry: "space before response", Sad: "a kind next action",
+    Guilt: "what can be repaired now", Lonely: "one brief connection", Burnout: "an energy boundary", Overthinking: "one decision limit"
+  };
+
+  const LANE_CONTEXT = {
+    Work: "the next useful work move",
+    Parents: "co-regulation before direction",
+    Relationships: "clear and respectful communication",
+    Single: "self-trust in daily choices",
+    Student: "short focused study blocks",
+    ADHD: "external structure and one-step momentum",
+    Caregiver: "sustainable care with boundaries",
+    "Military/Veteran": "steady mission-focused routines",
+    Entrepreneur: "execution over over-analysis"
+  };
+
+  const MAIN_PATTERNS = [
+    "You don’t need to solve everything now. Choose {focus} and start there.",
+    "Keep this simple: commit to {focus} for the next few minutes.",
+    "Progress grows when you narrow your attention to {focus}.",
+    "A small reset helps: return to {focus} before adding anything else.",
+    "Clarity comes faster when you work from {focus}, not pressure.",
+    "Let this moment be manageable. Anchor yourself in {focus}."
+  ];
+
+  const WHY_PATTERNS = [
+    "Narrowing attention to {focus} reduces cognitive load and makes follow-through easier.",
+    "A clear target like {focus} calms the nervous system by reducing uncertainty.",
+    "This perspective shift turns rumination into action you can complete around {focus}.",
+    "Repeating {focus} strengthens a practical habit loop you can trust.",
+    "A boundary around {focus} protects your energy and prevents overload.",
+    "Simple, direct self-talk about {focus} lowers internal conflict."
   ];
 
   const slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  const buildCardsFor = (space, category) =>
-    IDEAS.map((idea, idx) => ({
-      id: `${slug(space)}-${slug(category)}-${String(idx + 1).padStart(3, "0")}`,
-      main: idea.main,
-      why: idea.why,
-      do: idea.do
+  const buildCards = (space, category) => {
+    const focus = space === "Personal" ? (CATEGORY_CONTEXT[category] || `one grounded step for ${category.toLowerCase()}`) : (LANE_CONTEXT[space] || `one clear step for ${category.toLowerCase()}`);
+    return MAIN_PATTERNS.map((pattern, i) => ({
+      id: `${slug(space)}-${slug(category)}-${String(i + 1).padStart(3, "0")}`,
+      space,
+      category,
+      main: pattern.replaceAll("{focus}", focus),
+      why: WHY_PATTERNS[i % WHY_PATTERNS.length].replaceAll("{focus}", focus)
     }));
+  };
 
   const messageCards = {};
   Object.entries(SPACES).forEach(([space, categories]) => {
     messageCards[space] = {};
     categories.forEach((category) => {
-      messageCards[space][category] = buildCardsFor(space, category);
+      messageCards[space][category] = buildCards(space, category);
     });
   });
 

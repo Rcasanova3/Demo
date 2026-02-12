@@ -12,11 +12,11 @@ A calm, mobile-first static web app with multiple support spaces and category-ba
 - Category list updates based on selected Space
 - Reveal flow:
   - Pick category
-  - Reveal message card (main + Why this helps + Do this now)
+  - Reveal message card (main + Why this helps)
   - Show me another better thought
   - Save this thought
   - Share this thought
-- Message cards are stored in one consistent structure: `messageCards[space][category] = [{ id, main, why, do }]`
+- Message cards are stored in one consistent structure: `messageCards[space][category] = [{ id, space, category, main, why }]`
 - Repeat minimization:
   - Tracks shown card IDs per Space+Category in localStorage
   - Avoids repeats until all cards for that Space+Category are shown, then resets
