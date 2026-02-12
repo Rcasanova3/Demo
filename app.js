@@ -260,10 +260,10 @@ const ensureSharePreviewModal = () => {
   modal.innerHTML = `
     <div class="share-modal-backdrop" data-close-share-modal></div>
     <div class="share-modal-card" role="dialog" aria-modal="true" aria-label="Share image preview">
-      <h3>Share image ready</h3>
+      <h3>Share image preview</h3>
       <img id="sharePreviewImage" alt="Preview of share image" />
       <div class="share-modal-actions">
-        <a id="shareDownloadLink" class="btn btn-secondary" download="a-better-thought.png">Download PNG</a>
+        <a id="shareDownloadLink" class="btn btn-secondary" download="a-better-thought.png">Download image</a>
         <button type="button" class="btn btn-tertiary" data-close-share-modal>Close</button>
       </div>
     </div>
@@ -317,93 +317,145 @@ const setShareLoadingState = (button, isLoading) => {
   }
 };
 
-const generateShareImage = async (messageText) => {
+const generateShareImage = async ({ appName, tagline, category, message }) => {
   const outputWidth = 1080;
   const outputHeight = 1350;
-  const scale = 2;
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
 
-  const workCanvas = document.createElement("canvas");
-  workCanvas.width = outputWidth * scale;
-  workCanvas.height = outputHeight * scale;
-  const workCtx = workCanvas.getContext("2d");
-  if (!workCtx) return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.floor(outputWidth * dpr);
+  canvas.height = Math.floor(outputHeight * dpr);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
 
-  workCtx.scale(scale, scale);
+  ctx.scale(dpr, dpr);
 
-  const gradient = workCtx.createLinearGradient(0, 0, outputWidth, outputHeight);
-  gradient.addColorStop(0, "#eef1f4");
-  gradient.addColorStop(0.5, "#f6f4ef");
-  gradient.addColorStop(1, "#dde2e7");
-  workCtx.fillStyle = gradient;
-  workCtx.fillRect(0, 0, outputWidth, outputHeight);
+  const bg = ctx.createLinearGradient(0, 0, outputWidth, outputHeight);
+  bg.addColorStop(0, "#eef1f3");
+  bg.addColorStop(0.55, "#f5f2ec");
+  bg.addColorStop(1, "#dfe4ea");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, outputWidth, outputHeight);
 
   const orbs = [
-    { x: 160, y: 240, r: 260, color: "rgba(194, 201, 212, 0.25)" },
-    { x: 890, y: 420, r: 320, color: "rgba(220, 214, 205, 0.22)" },
-    { x: 540, y: 1080, r: 290, color: "rgba(184, 195, 204, 0.2)" }
+    { x: 160, y: 210, r: 230, color: "rgba(183, 197, 211, 0.24)" },
+    { x: 900, y: 420, r: 320, color: "rgba(208, 201, 191, 0.2)" },
+    { x: 520, y: 1120, r: 280, color: "rgba(178, 191, 203, 0.18)" }
   ];
 
   orbs.forEach((orb) => {
-    workCtx.save();
-    workCtx.filter = "blur(56px)";
-    workCtx.fillStyle = orb.color;
-    workCtx.beginPath();
-    workCtx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
-    workCtx.fill();
-    workCtx.restore();
+    ctx.save();
+    ctx.filter = "blur(58px)";
+    ctx.beginPath();
+    ctx.fillStyle = orb.color;
+    ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   });
 
-  roundRectPath(workCtx, 110, 130, 860, 1090, 28);
-  workCtx.fillStyle = "rgba(255, 255, 255, 0.35)";
-  workCtx.fill();
-  workCtx.strokeStyle = "rgba(255, 255, 255, 0.55)";
-  workCtx.lineWidth = 1.5;
-  workCtx.stroke();
+  // Top branding glass bar
+  roundRectPath(ctx, 74, 72, 932, 176, 28);
+  ctx.fillStyle = "rgba(255,255,255,0.36)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.62)";
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  roundRectPath(ctx, 98, 90, 884, 28, 14);
+  ctx.fillStyle = "rgba(255,255,255,0.32)";
+  ctx.fill();
 
-  roundRectPath(workCtx, 136, 154, 808, 36, 18);
-  workCtx.fillStyle = "rgba(255, 255, 255, 0.35)";
-  workCtx.fill();
+  ctx.save();
+  ctx.translate(130, 159);
+  ctx.strokeStyle = "rgba(39,47,59,0.82)";
+  ctx.fillStyle = "rgba(39,47,59,0.82)";
+  ctx.lineWidth = 4;
+  roundRectPath(ctx, -26, -24, 64, 44, 14);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-2, 20);
+  ctx.lineTo(-14, 35);
+  ctx.lineTo(8, 23);
+  ctx.closePath();
+  ctx.fill();
+  // spark
+  ctx.beginPath();
+  ctx.moveTo(44, -20);
+  ctx.lineTo(49, -7);
+  ctx.lineTo(62, -2);
+  ctx.lineTo(49, 3);
+  ctx.lineTo(44, 16);
+  ctx.lineTo(39, 3);
+  ctx.lineTo(26, -2);
+  ctx.lineTo(39, -7);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 
-  workCtx.shadowColor = "rgba(27, 34, 44, 0.12)";
-  workCtx.shadowBlur = 26;
-  workCtx.shadowOffsetY = 10;
-  roundRectPath(workCtx, 110, 130, 860, 1090, 28);
-  workCtx.strokeStyle = "rgba(255, 255, 255, 0.22)";
-  workCtx.stroke();
-  workCtx.shadowColor = "transparent";
+  ctx.fillStyle = "#1f2632";
+  ctx.font = "700 56px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillText(appName, 220, 150);
 
-  workCtx.font = "600 54px Plus Jakarta Sans, system-ui, sans-serif";
-  workCtx.fillStyle = "#1f2630";
-  workCtx.textAlign = "left";
+  ctx.fillStyle = "rgba(43,53,66,0.86)";
+  ctx.font = "500 30px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillText(tagline, 220, 195);
 
-  const maxTextWidth = 760;
-  const lines = wrapText(workCtx, messageText, maxTextWidth);
-  const lineHeight = 72;
-  const blockHeight = lines.length * lineHeight;
-  const startY = 130 + ((1090 - blockHeight) / 2) + lineHeight * 0.25;
+  // Category pill
+  const pillW = Math.min(460, Math.max(220, category.length * 21 + 90));
+  roundRectPath(ctx, (outputWidth - pillW) / 2, 308, pillW, 78, 39);
+  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.64)";
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+  roundRectPath(ctx, (outputWidth - pillW) / 2 + 16, 320, pillW - 32, 16, 8);
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  ctx.fill();
 
-  lines.forEach((line, index) => {
-    workCtx.fillText(line, 170, startY + index * lineHeight);
-  });
+  ctx.fillStyle = "rgba(35,43,54,0.9)";
+  ctx.font = "600 34px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(category, outputWidth / 2, 358);
+  ctx.textAlign = "left";
 
-  const grain = workCtx.createImageData(outputWidth, outputHeight);
+  // Hero message card
+  roundRectPath(ctx, 92, 428, 896, 802, 30);
+  ctx.fillStyle = "rgba(255,255,255,0.34)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.6)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  roundRectPath(ctx, 120, 448, 840, 20, 10);
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.fill();
+
+  ctx.shadowColor = "rgba(20, 25, 35, 0.13)";
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetY = 8;
+  roundRectPath(ctx, 92, 428, 896, 802, 30);
+  ctx.strokeStyle = "rgba(255,255,255,0.22)";
+  ctx.stroke();
+  ctx.shadowColor = "transparent";
+
+  ctx.fillStyle = "#1d2530";
+  ctx.font = "600 56px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  const lines = wrapText(ctx, message, 760);
+  const lh = 72;
+  const blockHeight = lines.length * lh;
+  const startY = 428 + ((802 - blockHeight) / 2) + lh * 0.35;
+  lines.forEach((line, i) => ctx.fillText(line, 160, startY + i * lh));
+
+  // subtle grain
+  const grain = ctx.createImageData(outputWidth, outputHeight);
   for (let i = 0; i < grain.data.length; i += 4) {
-    const value = Math.floor(Math.random() * 255);
-    grain.data[i] = value;
-    grain.data[i + 1] = value;
-    grain.data[i + 2] = value;
-    grain.data[i + 3] = 7;
+    const v = Math.floor(Math.random() * 255);
+    grain.data[i] = v;
+    grain.data[i + 1] = v;
+    grain.data[i + 2] = v;
+    grain.data[i + 3] = 6;
   }
-  workCtx.putImageData(grain, 0, 0);
+  ctx.putImageData(grain, 0, 0);
 
-  const outCanvas = document.createElement("canvas");
-  outCanvas.width = outputWidth;
-  outCanvas.height = outputHeight;
-  const outCtx = outCanvas.getContext("2d");
-  if (!outCtx) return null;
-  outCtx.drawImage(workCanvas, 0, 0, outputWidth, outputHeight);
-
-  return new Promise((resolve) => outCanvas.toBlob((blob) => resolve(blob), "image/png"));
+  return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
 };
 
 const shareThought = async (card = appState.currentCard, triggerButton = null) => {
@@ -415,7 +467,12 @@ const shareThought = async (card = appState.currentCard, triggerButton = null) =
 
   setShareLoadingState(triggerButton, true);
   try {
-    const blob = await generateShareImage(messageText);
+    const blob = await generateShareImage({
+      appName: "A Better Thought",
+      tagline: "One small shift. Big difference.",
+      category: card.category || "Message",
+      message: messageText
+    });
     if (!blob) {
       window.alert("Could not prepare the share image.");
       return;
