@@ -1,22 +1,23 @@
 # A Better Thought
 
-A calm, mobile-first static web app with two top-level sections—Personal and Parents—offering category-based supportive messages and quick 30-second actions.
+A calm, mobile-first static web app with multiple support spaces and category-based thought prompts.
 
 ## What it does
 
 - No subscription required (all features are immediately available)
-- Section switcher: Personal | Parents (persisted in localStorage)
-- Category dropdown picker with ordering filter
-- Reveal flow with tailored thought + why it helps + 30-second action
-- Reveal flow uses **Reveal message** and avoids immediate repeats in the same category
-- Share icon on cards supports quick share/download
-- Star icon on each revealed message toggles favorite on/off (filled when favorited, unfilled when not)
-- Dedicated `favorites.html` page to review favorites with per-card star (unfavorite), per-card share icon, clear all, and Saved filter (All | Personal | Parents)
-- Persists active section, selected category by section, and last revealed thought between visits
-- Share flow on phones using Web Share API:
-  - Attempts to share a generated PNG thought card (canvas)
-  - Falls back to text sharing when file sharing is unsupported
-  - Falls back to downloading the generated image when sharing is unavailable
+- Space selector with localStorage persistence (default: Personal)
+- Spaces included:
+  - Personal (20 fixed categories, unchanged)
+  - Work, Parents, Relationships, Single, Student, ADHD, Caregiver, Military/Veteran, Entrepreneur
+- Category list updates based on selected Space
+- Reveal flow:
+  - Pick category
+  - Reveal a better thought
+  - Show me another better thought / Save this thought / Share this thought
+- Modular message generator (openers + reframes + actions + closers) with shuffle-bag history to reduce repeats
+- Saved thoughts include section/space, category, text, and timestamp
+- Favorites page filter: All | Personal | Parents
+- Share supports Web Share API; clipboard fallback when native share is unavailable
 
 ## Run locally
 
@@ -34,8 +35,6 @@ Then open:
 http://localhost:8000
 ```
 
-You can also open `index.html` directly in a browser.
-
 ## GitHub Pages
 
-This repo is ready for GitHub Pages deployment from the branch root (no dependencies, no build tools).
+Deploy directly from the repository root on your Pages branch. No dependencies or build tools are required.

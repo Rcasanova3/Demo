@@ -101,61 +101,30 @@ h2 {
   font-weight: 600;
 }
 
-.section-switch {
-  margin-top: 6px;
-  background: rgba(248, 248, 248, 0.75);
-  border: 1px solid #d6d7dc;
-  border-radius: 999px;
-  padding: 4px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-}
-
-.switch-btn {
-  min-height: 38px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #454a53;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.switch-btn.is-active {
-  background: #14161a;
-  color: #fff;
-}
-
-.saved-filter-row {
+.space-switch {
+  margin-top: 8px;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 6px;
 }
 
-.saved-filter-label {
-  font-size: 0.82rem;
-  color: #5d626b;
-}
-
-.filter-btn {
-  min-height: 34px;
-  padding: 6px 10px;
+.space-btn {
+  min-height: 38px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid #d6d7dc;
   background: rgba(249, 249, 249, 0.82);
   color: #1e1f22;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.filter-btn.is-active {
-  background: #121317;
-  border-color: #121317;
+.space-btn.is-active {
+  background: #14161a;
   color: #fff;
+  border-color: #14161a;
 }
 
 ol {
@@ -250,8 +219,7 @@ ol {
   transform: translateY(1px) scale(0.98);
 }
 
-.icon-btn.is-favorited,
-.icon-btn.icon-star.is-favorited {
+.icon-btn.is-favorited {
   background: #121317;
   border-color: #121317;
   color: #fff;
@@ -305,6 +273,11 @@ select {
   cursor: not-allowed;
 }
 
+.action-row {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
 
 .btn-secondary,
 .btn-tertiary {
@@ -312,6 +285,36 @@ select {
   border-color: #d6d7dc;
   color: #17191d;
   padding: 9px 12px;
+}
+
+.saved-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.saved-filter-label {
+  font-size: 0.82rem;
+  color: #5d626b;
+}
+
+.filter-btn {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d6d7dc;
+  background: rgba(249, 249, 249, 0.82);
+  color: #1e1f22;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.filter-btn.is-active {
+  background: #121317;
+  border-color: #121317;
+  color: #fff;
 }
 
 .saved-list {
@@ -343,6 +346,7 @@ select {
 .saved-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
 }
 
 .favorites-link-wrap {

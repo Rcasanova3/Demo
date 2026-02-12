@@ -3,10 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="A Better Thought: One small shift. Big difference."
-    />
+    <meta name="description" content="A Better Thought: One small shift. Big difference." />
     <title>A Better Thought</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,12 +24,9 @@
           <p class="subtext">One small shift. Big difference.</p>
         </header>
 
-        <section class="panel section-switch-panel" aria-label="Section selector">
-          <p class="how-title">Choose section</p>
-          <div class="section-switch" role="tablist" aria-label="Thought section">
-            <button type="button" id="sectionPersonalBtn" class="switch-btn is-active" data-section="personal" role="tab" aria-selected="true">Personal</button>
-            <button type="button" id="sectionParentsBtn" class="switch-btn" data-section="parents" role="tab" aria-selected="false">Parents</button>
-          </div>
+        <section class="panel section-switch-panel" aria-label="Space selector">
+          <p class="how-title">Choose space</p>
+          <div class="space-switch" id="spaceSwitch" role="tablist" aria-label="Support spaces"></div>
         </section>
 
         <section class="panel onboarding">
@@ -54,20 +48,18 @@
           </div>
 
           <div class="control-block">
-            <label for="orderFilter">Organize categories:</label>
-            <select id="orderFilter">
-              <option value="positive">Positive to negative emotions</option>
-              <option value="alphabetical">Alphabetical</option>
-              <option value="ascending">Ascending</option>
-              <option value="descending">Descending</option>
-            </select>
-
             <label for="categorySelect">Pick a category:</label>
             <select id="categorySelect">
               <option value="">Select a category</option>
             </select>
 
             <button id="revealBtn" class="btn btn-primary" disabled>Reveal a better thought</button>
+          </div>
+
+          <div class="action-row" id="actionRow" hidden>
+            <button id="anotherBtn" class="btn btn-secondary">Show me another better thought</button>
+            <button id="saveBtn" class="btn btn-secondary">Save this thought</button>
+            <button id="shareBtn" class="btn btn-secondary">Share this thought</button>
           </div>
 
           <div class="favorites-link-wrap">
