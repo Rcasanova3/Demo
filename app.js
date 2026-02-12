@@ -56,10 +56,6 @@ const activeCategoryLabel = document.getElementById("activeCategoryLabel");
 const revealHelper = document.getElementById("revealHelper");
 const thoughtBubble = document.getElementById("thoughtBubble");
 const revealBtn = document.getElementById("revealBtn");
-const anotherBtn = document.getElementById("anotherBtn");
-const saveBtn = document.getElementById("saveBtn");
-const shareBtn = document.getElementById("shareBtn");
-const postActions = document.getElementById("postActions");
 
 const savedList = document.getElementById("savedList");
 const clearSavedBtn = document.getElementById("clearSavedBtn");
@@ -328,7 +324,6 @@ const renderThought = (card, animate = true) => {
   });
   document.getElementById("cardShareBtn")?.addEventListener("click", () => shareThought(card));
 
-  if (postActions) postActions.hidden = false;
   if (animate) requestAnimationFrame(() => thoughtBubble.classList.add("is-revealed"));
 };
 
@@ -445,12 +440,6 @@ const initHomePage = () => {
   });
 
   revealBtn?.addEventListener("click", () => revealThought(null));
-  anotherBtn?.addEventListener("click", () => revealThought(appState.currentCard?.id || null));
-  saveBtn?.addEventListener("click", () => {
-    saveCurrentThought();
-    renderThought(appState.currentCard, false);
-  });
-  shareBtn?.addEventListener("click", () => shareThought(appState.currentCard));
 
   try {
     const last = JSON.parse(safeStorageGet(STORAGE_KEYS.lastThought) || "null");

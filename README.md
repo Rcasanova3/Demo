@@ -13,9 +13,7 @@ A calm, mobile-first static web app with multiple support spaces and category-ba
 - Reveal flow:
   - Pick category
   - Reveal message card (main + Why this helps)
-  - Show me another better thought
-  - Save this thought
-  - Share this thought
+  - Use in-card icons (favorite star + share)
 - Message cards are stored in one consistent structure: `messageCards[space][category] = [{ id, space, category, main, why }]`
 - Repeat minimization:
   - Tracks shown card IDs per Space+Category in localStorage
