@@ -5,14 +5,15 @@ A calming static web app for daily affirmations and practical psychological micr
 ## Features
 
 - Fully accessible with no paywall or support gate (works offline in a browser)
-- Category dropdown selector with clear labels and high-contrast keyboard focus
+- Category dropdown selector with ordering filter and high-contrast keyboard focus
 - 3-step onboarding guidance:
   1. Pick a category
   2. Tap Reveal
   3. Try the 30-second action
 - Reveal is disabled until a category is selected, with helper guidance
+- Organize categories filter: Positive to negative emotions, Alphabetical, Ascending, Descending
 - 365 prompts per category (message + why it helps + 30-second action)
-- Categories: Overwhelmed, Anxious, Can’t focus, Unmotivated, Self-doubt, Angry, Sad, Guilt, Lonely, Burnt out, Overthinking, Gratitude
+- Categories: Gratitude, Calm, Joy, Hope, Confidence, Focused, Motivated, Connected, Balanced, Overwhelmed, Anxious, Distracted, Unmotivated, Selfdoubt, Angry, Sad, Guilt, Lonely, Burnout, Overthinking
 - Structured message card output with:
   - category title
   - short message

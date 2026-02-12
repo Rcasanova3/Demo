@@ -266,11 +266,6 @@ h2 {
   font-size: 0.92rem;
 }
 
-.category-select:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-
 
 .message-box {
   margin: 0.74rem 0 0.85rem;

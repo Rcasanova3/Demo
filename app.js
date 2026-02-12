@@ -47,280 +47,230 @@ const buildYearCategory = (theme) => {
 };
 
 const categoryThemes = {
+  Gratitude: {
+    openers: ["There is still good in this moment.", "Your mind can notice what supports you.", "Small appreciation can shift your day."],
+    focuses: ["Name one thing that is working", "Honor one person or moment", "Let your attention include the good"],
+    anchors: ["right now", "in this day", "before sleep"],
+    mechanisms: ["Gratitude broadens perspective and reduces stress bias.", "Appreciation supports emotional regulation.", "Positive noticing strengthens resilience over time."],
+    whyTail: "Frequent gratitude practices can stabilize mood.",
+    actions: ["List one thing you are grateful for.", "Send one short thank-you message.", "Name one moment you want to remember from today."],
+    actionTail: "Use 30 seconds to anchor in appreciation."
+  },
+  Calm: {
+    openers: ["Calm can return one breath at a time.", "Your body can guide your mind toward steadiness.", "You are allowed to slow down."],
+    focuses: ["Release tension in your shoulders", "Soften your breathing rhythm", "Choose a slower internal pace"],
+    anchors: ["in this moment", "for the next minute", "before your next task"],
+    mechanisms: ["Slower breathing can reduce nervous system arousal.", "Body relaxation helps lower stress intensity.", "Brief regulation improves emotional steadiness."],
+    whyTail: "Micro-calming habits build durable self-regulation.",
+    actions: ["Inhale for 4 and exhale for 6 twice.", "Drop your shoulders and unclench your jaw.", "Place both feet on the floor and exhale slowly."],
+    actionTail: "Spend 30 seconds creating calm."
+  },
+  Joy: {
+    openers: ["Joy can begin with one small spark.", "Pleasure in tiny moments still counts.", "You can welcome lightness without guilt."],
+    focuses: ["Notice one thing that feels good", "Allow a brief smile or laugh", "Choose one uplifting cue"],
+    anchors: ["today", "in this room", "right now"],
+    mechanisms: ["Positive micro-moments can buffer stress.", "Savoring improves emotional flexibility.", "Pleasant attention increases wellbeing signals."],
+    whyTail: "Small joy moments add up over time.",
+    actions: ["Play 30 seconds of a song you enjoy.", "Look at one photo that makes you smile.", "Name one simple thing you like right now."],
+    actionTail: "Take 30 seconds to invite joy."
+  },
+  Hope: {
+    openers: ["Hope grows from small evidence.", "You can trust that progress is still possible.", "A better next step can begin now."],
+    focuses: ["Find one reason to keep going", "Notice one sign of progress", "Choose one future-supporting action"],
+    anchors: ["for today", "for this week", "for your next step"],
+    mechanisms: ["Hopeful thinking improves persistence.", "Future-oriented micro-goals reduce helplessness.", "Meaningful next steps strengthen agency."],
+    whyTail: "Even small hope cues can improve motivation.",
+    actions: ["Write one sentence: ‘I am moving toward…’.", "List one thing that improved recently.", "Pick one tiny action that helps future-you."],
+    actionTail: "Give 30 seconds to reinforce hope."
+  },
+  Confidence: {
+    openers: ["Confidence can be practiced, not waited for.", "You can act with courage before certainty.", "Your progress deserves acknowledgment."],
+    focuses: ["Recall one capability you already have", "Replace criticism with balanced truth", "Trust evidence over fear"],
+    anchors: ["in this challenge", "before your next choice", "today"],
+    mechanisms: ["Evidence-based self-talk reduces self-doubt.", "Small wins reinforce competence beliefs.", "Constructive inner dialogue improves performance."],
+    whyTail: "Repeated confidence cues can change self-perception.",
+    actions: ["Name one thing you handled well this week.", "Say: ‘I can learn as I go.’", "Write one strength you used recently."],
+    actionTail: "Spend 30 seconds building confidence."
+  },
+  Focused: {
+    openers: ["Focus can return with one clear next step.", "You can restart attention at any moment.", "Clarity beats intensity."],
+    focuses: ["Shrink the task", "Reduce one distraction", "Choose one starting action"],
+    anchors: ["for the next 5 minutes", "right where you are", "at this energy level"],
+    mechanisms: ["Micro-goals improve task initiation.", "Reduced distraction increases cognitive control.", "Clear starts lower mental resistance."],
+    whyTail: "Tiny focus wins rebuild momentum quickly.",
+    actions: ["Close one distracting tab.", "Write your next task in five words.", "Set a 30-second timer and begin."],
+    actionTail: "Use 30 seconds to lock in focus."
+  },
+  Motivated: {
+    openers: ["Motivation can follow action.", "A tiny start can unlock momentum.", "You do not need perfect energy to begin."],
+    focuses: ["Start imperfectly", "Choose consistency over intensity", "Create one visible win"],
+    anchors: ["today", "this hour", "before your next break"],
+    mechanisms: ["Behavioral activation can increase drive.", "Small completions reinforce agency.", "Lowering pressure improves willingness to start."],
+    whyTail: "Reliable micro-actions sustain motivation.",
+    actions: ["Stand up and stretch for two breaths.", "Complete one sub-60-second task.", "Write one line of progress."],
+    actionTail: "Take 30 seconds to get moving."
+  },
+  Connected: {
+    openers: ["Connection can begin with one small reach-out.", "You deserve supportive relationships.", "Belonging grows through simple contact."],
+    focuses: ["Open one low-pressure interaction", "Move toward people, not isolation", "Build one moment of closeness"],
+    anchors: ["today", "this evening", "right now"],
+    mechanisms: ["Micro-connections reduce isolation intensity.", "Social safety cues support emotional regulation.", "Intentional outreach can increase belonging."],
+    whyTail: "One contact can shift the emotional tone of your day.",
+    actions: ["Send one check-in text.", "Share one honest sentence with someone safe.", "Say hello to one person nearby."],
+    actionTail: "Use 30 seconds to create connection."
+  },
+  Balanced: {
+    openers: ["Balance is built through small adjustments.", "You can hold effort and rest together.", "Steadiness comes from pacing, not pushing."],
+    focuses: ["Choose moderation over extremes", "Protect your energy and priorities", "Re-center your pace"],
+    anchors: ["for this day", "for this hour", "before continuing"],
+    mechanisms: ["Balanced pacing reduces burnout risk.", "Moderation supports emotional stability.", "Intentional regulation improves consistency."],
+    whyTail: "Small balancing actions prevent larger crashes.",
+    actions: ["Pause and breathe twice before your next task.", "Delay one non-urgent item.", "Drink water and reset posture."],
+    actionTail: "Take 30 seconds to rebalance."
+  },
   Overwhelmed: {
-    openers: [
-      "You do not have to carry everything at once.",
-      "A slower pace can still move you forward.",
-      "One small next step is enough for now."
-    ],
-    focuses: [
-      "Narrow your attention to one task",
-      "Reduce pressure to do everything perfectly",
-      "Give yourself permission to simplify"
-    ],
+    openers: ["You do not have to carry everything at once.", "A slower pace can still move you forward.", "One small next step is enough for now."],
+    focuses: ["Narrow your attention to one task", "Reduce pressure to do everything perfectly", "Give yourself permission to simplify"],
     anchors: ["in this moment", "for the next hour", "before your next task"],
-    mechanisms: [
-      "Reducing cognitive load improves emotional stability.",
-      "Single-tasking lowers stress and decision fatigue.",
-      "Simplification decreases overwhelm and increases follow-through."
-    ],
+    mechanisms: ["Reducing cognitive load improves emotional stability.", "Single-tasking lowers stress and decision fatigue.", "Simplification decreases overwhelm and increases follow-through."],
     whyTail: "Tiny reductions in pressure can create meaningful calm.",
-    actions: [
-      "Write down your top one priority.",
-      "Take one slow breath and relax your shoulders.",
-      "Delete one non-urgent task from your list."
-    ],
+    actions: ["Write down your top one priority.", "Take one slow breath and relax your shoulders.", "Delete one non-urgent task from your list."],
     actionTail: "Spend 30 seconds, then continue gently."
   },
   Anxious: {
-    openers: [
-      "You can feel anxious and still choose clearly.",
-      "Your breath can help your body feel safer.",
-      "This feeling can pass without controlling your next step."
-    ],
-    focuses: [
-      "Return to present facts",
-      "Separate worry from immediate reality",
-      "Ground yourself through your senses"
-    ],
+    openers: ["You can feel anxious and still choose clearly.", "Your breath can help your body feel safer.", "This feeling can pass without controlling your next step."],
+    focuses: ["Return to present facts", "Separate worry from immediate reality", "Ground yourself through your senses"],
     anchors: ["right now", "in this room", "before responding"],
-    mechanisms: [
-      "Grounding interrupts spiraling thought loops.",
-      "Long exhales support nervous system down-regulation.",
-      "Present-focused attention reduces catastrophic thinking."
-    ],
+    mechanisms: ["Grounding interrupts spiraling thought loops.", "Long exhales support nervous system down-regulation.", "Present-focused attention reduces catastrophic thinking."],
     whyTail: "Brief regulation practices repeated daily build resilience.",
-    actions: [
-      "Name 5 things you see and 4 things you feel.",
-      "Inhale for 4 and exhale for 6, three times.",
-      "Press your feet into the floor for two breaths."
-    ],
+    actions: ["Name 5 things you see and 4 things you feel.", "Inhale for 4 and exhale for 6, three times.", "Press your feet into the floor for two breaths."],
     actionTail: "Keep it to 30 seconds for a quick reset."
   },
-  "Can’t focus": {
-    openers: [
-      "Focus can return one small choice at a time.",
-      "You can restart without self-judgment.",
-      "Attention improves when the next step is clear."
-    ],
-    focuses: [
-      "Make the task smaller",
-      "Reduce visual and mental clutter",
-      "Choose one clear starting action"
-    ],
-    anchors: ["for the next 5 minutes", "at your current energy level", "right where you are"],
-    mechanisms: [
-      "Micro-goals improve initiation and sustained attention.",
-      "Clarity lowers friction that blocks concentration.",
-      "Removing distractions supports cognitive control."
-    ],
-    whyTail: "Small focus wins can rebuild momentum quickly.",
-    actions: [
-      "Set a 30-second timer and begin one sentence.",
-      "Close one distracting tab or app.",
-      "Write: ‘My next action is…’ and fill it in."
-    ],
-    actionTail: "Use only 30 seconds to start."
+  Distracted: {
+    openers: ["Distraction is a signal to simplify your next step.", "You can return to focus without judgment.", "Attention can be restarted in seconds."],
+    focuses: ["Shrink the task", "Reduce one distraction", "Set one clear starting point"],
+    anchors: ["for the next 5 minutes", "right here", "before continuing"],
+    mechanisms: ["Task chunking lowers cognitive friction.", "Environmental simplification improves concentration.", "Quick restarts prevent prolonged drift."],
+    whyTail: "Short resets can restore attention effectively.",
+    actions: ["Mute one notification source.", "Write one next action and do it.", "Take one breath, then begin for 30 seconds."],
+    actionTail: "Use 30 seconds to re-engage attention."
   },
   Unmotivated: {
-    openers: [
-      "Motivation often follows action, not the other way around.",
-      "A tiny move still counts as progress.",
-      "You can begin gently and build from there."
-    ],
-    focuses: ["Start imperfectly", "Aim for consistency over intensity", "Create one visible win"],
-    anchors: ["today", "this hour", "before your next break"],
-    mechanisms: [
-      "Behavioral activation improves mood and drive.",
-      "Small completions reinforce agency and confidence.",
-      "Lowering pressure increases willingness to start."
-    ],
-    whyTail: "Reliable micro-actions often beat sporadic big pushes.",
-    actions: [
-      "Stand up and stretch for two breaths.",
-      "Complete one task that takes less than a minute.",
-      "Write one line of progress and save it."
-    ],
-    actionTail: "Give it 30 seconds and reassess."
+    openers: ["Motivation can follow action, not only precede it.", "A tiny move still counts as progress.", "You can start gently today."],
+    focuses: ["Begin with low pressure", "Choose one easy win", "Build momentum through motion"],
+    anchors: ["right now", "this hour", "before your next break"],
+    mechanisms: ["Behavioral activation improves mood and drive.", "Small wins increase willingness to continue.", "Reduced pressure supports initiation."],
+    whyTail: "Micro-actions are often enough to break inertia.",
+    actions: ["Stand up and move for two breaths.", "Do one task under 60 seconds.", "Write one line of progress."],
+    actionTail: "Spend 30 seconds getting started."
   },
-  "Self-doubt": {
-    openers: [
-      "You can doubt yourself and still move forward wisely.",
-      "Your value is not reduced by uncertainty.",
-      "Confidence can be practiced in small moments."
-    ],
-    focuses: [
-      "Name one thing you did well",
-      "Replace harsh self-talk with balanced truth",
-      "Trust evidence over inner criticism"
-    ],
-    anchors: ["in this challenge", "before your next choice", "in this season"],
-    mechanisms: [
-      "Balanced self-appraisal reduces avoidance.",
-      "Self-compassion improves emotional regulation.",
-      "Evidence-based self-talk increases confidence."
-    ],
-    whyTail: "Small reminders can weaken inner-critic patterns over time.",
-    actions: [
-      "Write one recent win, however small.",
-      "Say: ‘I can learn as I go.’",
-      "List one strength you used this week."
-    ],
+  Selfdoubt: {
+    openers: ["You can doubt yourself and still take wise action.", "Your worth is not reduced by uncertainty.", "Confidence grows through practice."],
+    focuses: ["Name one capability you already have", "Replace harsh thoughts with balanced ones", "Trust evidence over fear"],
+    anchors: ["in this challenge", "today", "before your next step"],
+    mechanisms: ["Balanced self-talk reduces avoidance.", "Self-compassion improves regulation.", "Evidence-based reflection strengthens confidence."],
+    whyTail: "Consistent reinforcement can weaken inner-critic patterns.",
+    actions: ["Write one thing you did well.", "Say: ‘I can learn as I go.’", "List one strength you used recently."],
     actionTail: "Take 30 seconds to reinforce self-trust."
   },
   Angry: {
-    openers: [
-      "Your anger carries information, and you can channel it safely.",
-      "You can pause before responding.",
-      "Power and calm can exist together."
-    ],
-    focuses: ["Regulate first, communicate second", "Slow the reaction window", "Choose response over impulse"],
-    anchors: ["in this moment", "before sending that message", "during this conversation"],
-    mechanisms: [
-      "Brief pauses reduce reactive behavior.",
-      "Body calming lowers emotional intensity.",
-      "Intentional response improves outcomes in conflict."
-    ],
+    openers: ["Your anger holds information, and you can channel it safely.", "You can pause before responding.", "Calm and strength can coexist."],
+    focuses: ["Regulate first, communicate second", "Slow your reaction window", "Choose response over impulse"],
+    anchors: ["right now", "before replying", "during this conversation"],
+    mechanisms: ["Pauses reduce reactive behavior.", "Body calming lowers emotional intensity.", "Intentional responses improve outcomes."],
     whyTail: "A short pause can prevent long regret.",
-    actions: [
-      "Unclench your jaw and hands, then exhale slowly.",
-      "Count backward from 5 before speaking.",
-      "Write what you need in one clear sentence."
-    ],
-    actionTail: "Spend 30 seconds lowering intensity first."
+    actions: ["Unclench your jaw and exhale slowly.", "Count backward from 5.", "Write one clear need in one sentence."],
+    actionTail: "Use 30 seconds to lower intensity first."
   },
   Sad: {
-    openers: [
-      "Sadness deserves kindness, not shame.",
-      "You can feel heavy and still care for yourself.",
-      "One soft action can make this moment lighter."
-    ],
-    focuses: ["Choose gentle self-support", "Stay connected to your body", "Allow emotion without judgment"],
-    anchors: ["right now", "for this next hour", "in this quiet moment"],
-    mechanisms: [
-      "Self-kindness reduces secondary distress.",
-      "Body awareness can ease emotional intensity.",
-      "Allowing feelings helps them move through more safely."
-    ],
-    whyTail: "Small acts of care can support recovery.",
-    actions: [
-      "Place a hand on your heart and breathe slowly.",
-      "Drink a glass of water mindfully.",
-      "Step outside and notice one comforting detail."
-    ],
-    actionTail: "Take 30 seconds to offer yourself care."
+    openers: ["Sadness deserves care, not judgment.", "You can feel heavy and still support yourself.", "One soft action can lighten this moment."],
+    focuses: ["Offer yourself kindness", "Stay connected to your body", "Allow emotion without shame"],
+    anchors: ["right now", "for this hour", "in this quiet moment"],
+    mechanisms: ["Self-kindness reduces secondary distress.", "Body awareness can soften intensity.", "Allowing emotion helps it move through safely."],
+    whyTail: "Small acts of care support emotional recovery.",
+    actions: ["Place a hand on your heart and breathe.", "Drink water mindfully.", "Step outside and notice one comforting detail."],
+    actionTail: "Take 30 seconds to care for yourself."
   },
   Guilt: {
-    openers: [
-      "You can take responsibility without attacking yourself.",
-      "Growth is possible without self-punishment.",
-      "Compassion can coexist with accountability."
-    ],
+    openers: ["You can take responsibility without self-attack.", "Growth is possible without punishment.", "Compassion and accountability can coexist."],
     focuses: ["Name what you learned", "Separate behavior from identity", "Choose repair over rumination"],
     anchors: ["today", "in this reflection", "before your next step"],
-    mechanisms: [
-      "Self-compassion supports constructive change.",
-      "Distinguishing action from identity reduces shame spirals.",
-      "Repair-focused thinking improves emotional recovery."
-    ],
-    whyTail: "Gentle accountability builds healthier long-term habits.",
-    actions: [
-      "Write one sentence: ‘I can learn from this.’",
-      "Identify one repair action you can take.",
-      "Take one breath and release self-blame in your shoulders."
-    ],
+    mechanisms: ["Self-compassion supports constructive change.", "Identity separation reduces shame spirals.", "Repair-focused thinking improves recovery."],
+    whyTail: "Gentle accountability builds healthier habits.",
+    actions: ["Write: ‘I can learn from this.’", "Name one repair action.", "Release tension and exhale slowly."],
     actionTail: "Use 30 seconds to move toward repair."
   },
   Lonely: {
-    openers: [
-      "Loneliness is a signal for connection, not a personal failure.",
-      "You deserve meaningful support.",
-      "Small contact can soften isolation."
-    ],
-    focuses: ["Reach out in a low-pressure way", "Reconnect with values and people", "Build one moment of connection"],
-    anchors: ["today", "this evening", "in this next step"],
-    mechanisms: [
-      "Micro-connections can reduce isolation intensity.",
-      "Social cues of safety improve emotional regulation.",
-      "Intentional outreach supports belonging and hope."
-    ],
-    whyTail: "One small connection can shift how the day feels.",
-    actions: [
-      "Send a simple check-in text to one person.",
-      "Write one name of someone you trust.",
-      "Step into a shared space, even briefly."
-    ],
-    actionTail: "Take 30 seconds to open one connection door."
+    openers: ["Loneliness is a signal for connection, not failure.", "You deserve meaningful support.", "Small contact can soften isolation."],
+    focuses: ["Reach out in a low-pressure way", "Reconnect with safe people", "Build one moment of contact"],
+    anchors: ["today", "this evening", "right now"],
+    mechanisms: ["Micro-connections reduce isolation intensity.", "Social contact improves emotional safety signals.", "Intentional outreach supports belonging."],
+    whyTail: "One connection can shift your emotional state.",
+    actions: ["Send one check-in text.", "Write one person’s name to contact.", "Say hello to one person."],
+    actionTail: "Take 30 seconds to open a connection."
   },
-  "Burnt out": {
-    openers: [
-      "Rest is productive when your system is overloaded.",
-      "You can recover in small intervals.",
-      "Boundaries protect your long-term energy."
-    ],
-    focuses: ["Lower demands briefly", "Protect your energy intentionally", "Choose restoration over depletion"],
-    anchors: ["right now", "for this next block", "before you continue"],
-    mechanisms: [
-      "Short recovery breaks improve cognitive performance.",
-      "Energy boundaries reduce emotional exhaustion.",
-      "Nervous system recovery supports sustainable output."
-    ],
+  Burnout: {
+    openers: ["Rest is productive when your system is overloaded.", "Recovery can happen in small intervals.", "Boundaries protect long-term energy."],
+    focuses: ["Lower demands briefly", "Protect your energy", "Choose restoration over depletion"],
+    anchors: ["right now", "before continuing", "for this next block"],
+    mechanisms: ["Short breaks improve performance recovery.", "Energy boundaries reduce exhaustion.", "Nervous system recovery supports sustainable output."],
     whyTail: "Micro-rest helps prevent deeper burnout cycles.",
-    actions: [
-      "Close your eyes for two slow breaths.",
-      "Loosen your shoulders and neck gently.",
-      "Delay one non-urgent task by one hour."
-    ],
+    actions: ["Close your eyes for two breaths.", "Loosen your neck and shoulders.", "Delay one non-urgent task."],
     actionTail: "Take 30 seconds to protect your energy."
   },
   Overthinking: {
-    openers: [
-      "You do not need perfect certainty to move.",
-      "Thinking more is not always solving more.",
-      "Action can quiet loops faster than rumination."
-    ],
-    focuses: ["Choose one decision boundary", "Shift from analysis to action", "Return to what is controllable"],
+    openers: ["You do not need perfect certainty to move.", "More thinking is not always more solving.", "Action can quiet loops faster than rumination."],
+    focuses: ["Set one decision boundary", "Shift from analysis to action", "Return to what you can control"],
     anchors: ["in this decision", "for the next 10 minutes", "right now"],
-    mechanisms: [
-      "Decision limits reduce rumination fatigue.",
-      "Action interrupts repetitive thought cycles.",
-      "Control-focused thinking decreases mental overload."
-    ],
-    whyTail: "Small action often creates clarity faster than extra analysis.",
-    actions: [
-      "Set a 30-second limit, then choose the next step.",
-      "Write two options and pick one.",
-      "Ask: ‘What is enough information right now?’"
-    ],
+    mechanisms: ["Decision limits reduce rumination fatigue.", "Action interrupts repetitive thought loops.", "Control-focused thinking lowers mental overload."],
+    whyTail: "Small action often creates clarity faster.",
+    actions: ["Set a 30-second decision limit.", "Write two options and choose one.", "Ask: ‘What is enough information now?’"],
     actionTail: "Use 30 seconds to move from loop to action."
-  },
-  Gratitude: {
-    openers: [
-      "There is still something good available right now.",
-      "Small moments of appreciation can steady your mood.",
-      "Noticing what is working builds emotional strength."
-    ],
-    focuses: ["Name one thing that helped today", "Appreciate one person or moment", "Let your attention include what is good"],
-    anchors: ["in this day", "before sleep", "in this breath"],
-    mechanisms: [
-      "Gratitude practices can broaden attention and reduce stress bias.",
-      "Positive noticing supports emotional balance.",
-      "Appreciation strengthens resilience and perspective."
-    ],
-    whyTail: "Regular gratitude can support steadier wellbeing over time.",
-    actions: [
-      "List one thing you are grateful for right now.",
-      "Send one thank-you message.",
-      "Name one moment from today you want to remember."
-    ],
-    actionTail: "Take 30 seconds to anchor in what is good."
   }
 };
+
+const positiveNegativeOrder = [
+  "Gratitude",
+  "Calm",
+  "Joy",
+  "Hope",
+  "Confidence",
+  "Focused",
+  "Motivated",
+  "Connected",
+  "Balanced",
+  "Overwhelmed",
+  "Anxious",
+  "Distracted",
+  "Unmotivated",
+  "Selfdoubt",
+  "Angry",
+  "Sad",
+  "Guilt",
+  "Lonely",
+  "Burnout",
+  "Overthinking"
+];
 
 const categories = Object.fromEntries(
   Object.entries(categoryThemes).map(([name, theme]) => [name, buildYearCategory(theme)])
 );
 
+const getOrderedCategoryNames = (filterMode) => {
+  const names = Object.keys(categories);
+
+  if (filterMode === "descending") {
+    return [...names].sort((a, b) => b.localeCompare(a));
+  }
+
+  if (filterMode === "ascending" || filterMode === "alphabetical") {
+    return [...names].sort((a, b) => a.localeCompare(b));
+  }
+
+  return positiveNegativeOrder.filter((name) => names.includes(name));
+};
+
+const categoryOrderFilter = document.getElementById("categoryOrderFilter");
 const categorySelect = document.getElementById("categorySelect");
 const categoryTitle = document.getElementById("categoryTitle");
 const revealHint = document.getElementById("revealHint");
@@ -663,21 +613,32 @@ const restoreFromStorage = () => {
   }
 };
 
-const buildCategoryOptions = () => {
+const buildCategoryOptions = (filterMode = "positive") => {
+  const previousValue = categorySelect.value || appState.activeCategory || "";
+  categorySelect.innerHTML = "";
+
   const placeholder = document.createElement("option");
   placeholder.value = "";
   placeholder.textContent = "Select a category";
   categorySelect.appendChild(placeholder);
 
-  Object.keys(categories).forEach((name) => {
+  getOrderedCategoryNames(filterMode).forEach((name) => {
     const option = document.createElement("option");
     option.value = name;
     option.textContent = name;
     categorySelect.appendChild(option);
   });
 
-  categorySelect.value = "";
+  if (previousValue && categories[previousValue]) {
+    categorySelect.value = previousValue;
+  } else {
+    categorySelect.value = "";
+  }
 };
+
+categoryOrderFilter.addEventListener("change", (event) => {
+  buildCategoryOptions(event.target.value);
+});
 
 categorySelect.addEventListener("change", (event) => {
   selectCategory(event.target.value);
@@ -687,7 +648,7 @@ drawBtn.addEventListener("click", () => {
   revealMessage(true);
 });
 
-buildCategoryOptions();
+buildCategoryOptions(categoryOrderFilter.value);
 loadFavorites();
 renderFavorites();
 restoreFromStorage();
