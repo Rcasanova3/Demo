@@ -244,8 +244,8 @@ ol {
   height: 38px;
   border-radius: 999px;
   border: 1px solid rgba(255, 221, 164, 0.55);
-  background: rgba(92, 42, 4, 0.34);
-  color: rgba(255, 238, 205, 0.98);
+  background: rgba(92, 42, 4, 0.22);
+  color: rgba(255, 245, 228, 0.92);
   font: inherit;
   font-size: 1.1rem;
   line-height: 1;
@@ -253,7 +253,7 @@ ol {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 180ms ease, background-color 180ms ease;
+  transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
 .icon-btn:active {
@@ -261,9 +261,9 @@ ol {
 }
 
 .icon-btn.is-favorited {
-  background: rgba(255, 210, 130, 0.92);
-  border-color: rgba(255, 224, 167, 0.95);
-  color: #5a2d05;
+  background: rgba(92, 42, 4, 0.3);
+  border-color: rgba(255, 227, 166, 0.95);
+  color: #ffd84d;
 }
 
 .control-block {
