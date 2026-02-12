@@ -1,6 +1,6 @@
 # A Better Thought
 
-A calm, mobile-first static web app with multiple support spaces and category-based thought prompts.
+A calm, mobile-first static web app with multiple support spaces and category-based thought cards.
 
 ## What it does
 
@@ -12,12 +12,18 @@ A calm, mobile-first static web app with multiple support spaces and category-ba
 - Category list updates based on selected Space
 - Reveal flow:
   - Pick category
-  - Reveal message
-  - Use in-card quick actions (star/save and share icon)
-- Modular message generator (openers + reframes + actions + closers) with shuffle-bag history to reduce repeats
-- Saved thoughts include section/space, category, text, and timestamp
-- Favorites page filter: All | Personal | Parents
-- Share supports Web Share API; clipboard fallback when native share is unavailable
+  - Reveal message card (main + Why this helps + Do this now)
+  - Show me another better thought
+  - Save this thought
+  - Share this thought
+- Message cards are stored in one consistent structure: `messageCards[space][category] = [{ id, main, why, do }]`
+- Repeat minimization:
+  - Tracks shown card IDs per Space+Category in localStorage
+  - Avoids repeats until all cards for that Space+Category are shown, then resets
+- Dev validation on load warns in console if any card has missing fields or duplicate IDs
+- Favorites include space, category, text, and timestamp
+- Favorites page supports filtering by All or any Space
+- Share supports Web Share API with image when available; clipboard fallback otherwise
 
 ## Run locally
 
