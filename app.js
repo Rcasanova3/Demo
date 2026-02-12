@@ -60,6 +60,7 @@ const sharePreviewModal = document.getElementById("sharePreviewModal");
 const shareModalBackdrop = document.getElementById("shareModalBackdrop");
 const shareModalCard = document.getElementById("shareModalCard");
 const sharePreviewImg = document.getElementById("sharePreviewImg");
+const sharePreviewError = document.getElementById("sharePreviewError");
 const shareDownloadLink = document.getElementById("shareDownloadLink");
 const shareNativeBtn = document.getElementById("shareNativeBtn");
 const shareCloseBtn = document.getElementById("shareCloseBtn");
@@ -272,8 +273,20 @@ const closeShareModal = () => {
   }
   activeShareBlob = null;
 
-  if (sharePreviewImg) sharePreviewImg.removeAttribute("src");
-  if (shareDownloadLink) shareDownloadLink.removeAttribute("href");
+  if (sharePreviewImg) {
+    sharePreviewImg.removeAttribute("src");
+    sharePreviewImg.hidden = true;
+  }
+  if (sharePreviewError) {
+    sharePreviewError.textContent = "";
+    sharePreviewError.hidden = true;
+  }
+  if (shareDownloadLink) {
+    shareDownloadLink.removeAttribute("href");
+    shareDownloadLink.removeAttribute("download");
+    shareDownloadLink.hidden = true;
+  }
+  if (shareNativeBtn) shareNativeBtn.hidden = true;
 };
 
 const openShareModal = () => {
@@ -281,6 +294,20 @@ const openShareModal = () => {
   sharePreviewModal.hidden = false;
   sharePreviewModal.setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
+};
+
+const showShareError = (message) => {
+  if (sharePreviewImg) {
+    sharePreviewImg.hidden = true;
+    sharePreviewImg.removeAttribute("src");
+  }
+  if (shareDownloadLink) shareDownloadLink.hidden = true;
+  if (shareNativeBtn) shareNativeBtn.hidden = true;
+  if (sharePreviewError) {
+    sharePreviewError.hidden = false;
+    sharePreviewError.textContent = message;
+  }
+  openShareModal();
 };
 
 const bindShareModalEvents = () => {
@@ -299,13 +326,22 @@ const bindShareModalEvents = () => {
     escapeListenerBound = true;
   }
 
+  shareDownloadLink?.addEventListener("click", (event) => {
+    if (!activeShareUrl) {
+      event.preventDefault();
+      return;
+    }
+    shareDownloadLink.href = activeShareUrl;
+    shareDownloadLink.download = "a-better-thought.png";
+  });
+
   shareNativeBtn?.addEventListener("click", async () => {
     if (!activeShareBlob || !navigator.share) return;
     try {
       const file = new File([activeShareBlob], "a-better-thought.png", { type: "image/png" });
       await navigator.share({ files: [file], title: "A Better Thought" });
     } catch {
-      // ignore cancel/errors
+      // ignore
     }
   });
 
@@ -318,7 +354,7 @@ const setShareLoadingState = (button, isLoading) => {
     button.disabled = true;
     button.setAttribute("aria-busy", "true");
     button.dataset.prevText = button.textContent;
-    button.textContent = button.classList.contains("icon-btn") ? "…" : "Preparing share image…";
+    button.textContent = button.classList.contains("icon-btn") ? "…" : "Preparing share image...";
     return;
   }
 
@@ -330,161 +366,128 @@ const setShareLoadingState = (button, isLoading) => {
   }
 };
 
-const generateShareCard = async ({ appName, tagline, space, category, message }) => {
-  await document.fonts?.ready;
+const toBlobFromDataUrl = (dataUrl) => {
+  const [header, data] = dataUrl.split(",");
+  const mime = (header.match(/data:(.*?);base64/) || [])[1] || "image/png";
+  const bytes = atob(data);
+  const len = bytes.length;
+  const arr = new Uint8Array(len);
+  for (let i = 0; i < len; i += 1) arr[i] = bytes.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+};
 
-  const outputWidth = 1080;
-  const outputHeight = 1350;
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
+const wrapPosterText = (ctx, text, maxWidth, maxLines = 8) => {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
 
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.floor(outputWidth * dpr);
-  canvas.height = Math.floor(outputHeight * dpr);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return { blob: null, url: null };
+  words.forEach((word) => {
+    const candidate = line ? `${line} ${word}` : word;
+    if (ctx.measureText(candidate).width <= maxWidth) {
+      line = candidate;
+      return;
+    }
 
-  ctx.scale(dpr, dpr);
-
-  const bg = ctx.createLinearGradient(0, 0, outputWidth, outputHeight);
-  bg.addColorStop(0, "#edf0f4");
-  bg.addColorStop(0.55, "#f6f3ee");
-  bg.addColorStop(1, "#dce2e9");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, outputWidth, outputHeight);
-
-  [
-    { x: 180, y: 200, r: 240, c: "rgba(182,196,208,0.22)" },
-    { x: 900, y: 380, r: 320, c: "rgba(208,201,191,0.20)" },
-    { x: 530, y: 1100, r: 300, c: "rgba(174,188,201,0.18)" }
-  ].forEach((orb) => {
-    ctx.save();
-    ctx.filter = "blur(62px)";
-    ctx.beginPath();
-    ctx.fillStyle = orb.c;
-    ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    if (line) lines.push(line);
+    line = word;
   });
 
-  roundRectPath(ctx, 74, 70, 932, 190, 30);
-  ctx.fillStyle = "rgba(255,255,255,0.36)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.62)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  if (line) lines.push(line);
 
-  roundRectPath(ctx, 98, 92, 884, 30, 14);
-  ctx.fillStyle = "rgba(255,255,255,0.31)";
-  ctx.fill();
-
-  ctx.save();
-  ctx.translate(130, 165);
-  ctx.strokeStyle = "rgba(33,41,53,0.82)";
-  ctx.fillStyle = "rgba(33,41,53,0.82)";
-  ctx.lineWidth = 4;
-  roundRectPath(ctx, -26, -24, 64, 44, 14);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(-2, 20);
-  ctx.lineTo(-14, 35);
-  ctx.lineTo(8, 23);
-  ctx.closePath();
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(44, -20);
-  ctx.lineTo(49, -7);
-  ctx.lineTo(62, -2);
-  ctx.lineTo(49, 3);
-  ctx.lineTo(44, 16);
-  ctx.lineTo(39, 3);
-  ctx.lineTo(26, -2);
-  ctx.lineTo(39, -7);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-
-  ctx.fillStyle = "#1f2732";
-  ctx.font = "700 56px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillText(appName, 220, 154);
-
-  ctx.fillStyle = "rgba(43,53,66,0.9)";
-  ctx.font = "500 30px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillText(tagline, 220, 202);
-
-  const lane = `${space} · ${category}`;
-  const pillW = Math.min(560, Math.max(260, lane.length * 18 + 96));
-  roundRectPath(ctx, (outputWidth - pillW) / 2, 306, pillW, 82, 41);
-  ctx.fillStyle = "rgba(255,255,255,0.42)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.66)";
-  ctx.lineWidth = 1.3;
-  ctx.stroke();
-  roundRectPath(ctx, (outputWidth - pillW) / 2 + 16, 320, pillW - 32, 16, 8);
-  ctx.fillStyle = "rgba(255,255,255,0.3)";
-  ctx.fill();
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(34,42,54,0.92)";
-  ctx.font = "600 32px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillText(lane, outputWidth / 2, 360);
-  ctx.textAlign = "left";
-
-  roundRectPath(ctx, 90, 424, 900, 770, 30);
-  ctx.fillStyle = "rgba(255,255,255,0.35)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.62)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  roundRectPath(ctx, 118, 446, 844, 20, 10);
-  ctx.fillStyle = "rgba(255,255,255,0.3)";
-  ctx.fill();
-
-  ctx.shadowColor = "rgba(19, 24, 35, 0.14)";
-  ctx.shadowBlur = 24;
-  ctx.shadowOffsetY = 9;
-  roundRectPath(ctx, 90, 424, 900, 770, 30);
-  ctx.strokeStyle = "rgba(255,255,255,0.24)";
-  ctx.stroke();
-  ctx.shadowColor = "transparent";
-
-  ctx.fillStyle = "#1d2530";
-  ctx.font = "600 56px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  const lines = wrapText(ctx, message, 760);
-  const lineHeight = 72;
-  const blockHeight = lines.length * lineHeight;
-  const startY = 424 + ((770 - blockHeight) / 2) + lineHeight * 0.35;
-  lines.forEach((line, i) => ctx.fillText(line, 165, startY + i * lineHeight));
-
-  ctx.fillStyle = "rgba(44,52,64,0.65)";
-  ctx.font = "500 25px Plus Jakarta Sans, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("rcasanova3.github.io", outputWidth / 2, 1286);
-
-  const grain = ctx.createImageData(outputWidth, outputHeight);
-  for (let i = 0; i < grain.data.length; i += 4) {
-    const v = Math.floor(Math.random() * 255);
-    grain.data[i] = v;
-    grain.data[i + 1] = v;
-    grain.data[i + 2] = v;
-    grain.data[i + 3] = 6;
+  if (lines.length > maxLines) {
+    const trimmed = lines.slice(0, maxLines);
+    const lastIndex = maxLines - 1;
+    while (trimmed[lastIndex].length > 1 && ctx.measureText(`${trimmed[lastIndex]}…`).width > maxWidth) {
+      trimmed[lastIndex] = trimmed[lastIndex].slice(0, -1);
+    }
+    trimmed[lastIndex] = `${trimmed[lastIndex]}…`;
+    return trimmed;
   }
-  ctx.putImageData(grain, 0, 0);
 
-  const blob = await new Promise((resolve) => canvas.toBlob((value) => resolve(value), "image/png"));
-  const url = blob ? URL.createObjectURL(blob) : null;
+  return lines;
+};
+
+const generateSharePoster = async ({ appName, tagline, space, category, message }) => {
+  if (!message || typeof message !== "string" || !message.trim()) {
+    throw new Error("Reveal a better thought first.");
+  }
+
+  await document.fonts?.ready;
+
+  const W = 1080;
+  const H = 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas context is unavailable.");
+
+  ctx.fillStyle = "#F6F3EE";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = "#121212";
+  ctx.beginPath();
+  ctx.arc(8, 8, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#121212";
+  ctx.font = '600 40px "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  ctx.fillText(appName, 100, 124);
+
+  ctx.fillStyle = "#2b2b2b";
+  ctx.font = '500 28px "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  ctx.fillText(tagline, 100, 166);
+
+  ctx.strokeStyle = "#1f1f1f";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(100, 204);
+  ctx.lineTo(980, 204);
+  ctx.stroke();
+
+  ctx.fillStyle = "#161616";
+  ctx.font = "700 132px Georgia, 'Times New Roman', serif";
+  ctx.fillText(category || "Message", 100, 372);
+
+  ctx.fillStyle = "#313131";
+  ctx.font = '500 30px "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  ctx.fillText(`${space || "Personal"} • ${category || "Message"}`, 104, 426);
+
+  ctx.fillStyle = "#121212";
+  ctx.font = '600 62px "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  const lines = wrapPosterText(ctx, message.trim(), 860, 8);
+  const lineHeight = 66;
+  const blockHeight = lines.length * lineHeight;
+  const startY = 620 + (420 - blockHeight) / 2 + 24;
+  lines.forEach((line, idx) => {
+    ctx.fillText(line, 110, startY + idx * lineHeight);
+  });
+
+  ctx.fillStyle = "#373737";
+  ctx.font = '500 24px "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  ctx.fillText("rcasanova3.github.io/Demo", 100, 1268);
+
+  let blob = await new Promise((resolve) => canvas.toBlob((value) => resolve(value), "image/png", 1));
+  if (!blob) {
+    const dataUrl = canvas.toDataURL("image/png", 1);
+    blob = toBlobFromDataUrl(dataUrl);
+  }
+
+  const url = URL.createObjectURL(blob);
   return { blob, url };
 };
 
 const shareThought = async (card = appState.currentCard, triggerButton = null) => {
   const messageText = card?.main?.trim();
   if (!messageText) {
-    window.alert("Reveal a better thought first.");
+    showShareError("Reveal a better thought first.");
     return;
   }
 
   setShareLoadingState(triggerButton, true);
   try {
-    const { blob, url } = await generateShareCard({
+    bindShareModalEvents();
+    const { blob, url } = await generateSharePoster({
       appName: "A Better Thought",
       tagline: "One small shift. Big difference.",
       space: card.space || appState.activeSpace || "Personal",
@@ -492,19 +495,23 @@ const shareThought = async (card = appState.currentCard, triggerButton = null) =
       message: messageText
     });
 
-    if (!blob || !url) {
-      window.alert("Could not prepare the share image.");
-      return;
-    }
-
-    bindShareModalEvents();
-
     if (activeShareUrl) URL.revokeObjectURL(activeShareUrl);
     activeShareBlob = blob;
     activeShareUrl = url;
 
-    if (sharePreviewImg) sharePreviewImg.src = url;
-    if (shareDownloadLink) shareDownloadLink.href = url;
+    if (sharePreviewError) {
+      sharePreviewError.hidden = true;
+      sharePreviewError.textContent = "";
+    }
+    if (sharePreviewImg) {
+      sharePreviewImg.hidden = false;
+      sharePreviewImg.src = url;
+    }
+    if (shareDownloadLink) {
+      shareDownloadLink.hidden = false;
+      shareDownloadLink.href = url;
+      shareDownloadLink.download = "a-better-thought.png";
+    }
 
     const file = new File([blob], "a-better-thought.png", { type: "image/png" });
     const canNativeShare = Boolean(navigator.share && navigator.canShare?.({ files: [file] }));
@@ -514,8 +521,14 @@ const shareThought = async (card = appState.currentCard, triggerButton = null) =
     }
 
     openShareModal();
-  } catch {
-    window.alert("Could not share right now. Please try again.");
+  } catch (err) {
+    console.error("Share poster generation failed", {
+      error: err,
+      canvasWidth: 1080,
+      canvasHeight: 1350,
+      messageLength: messageText ? messageText.length : 0
+    });
+    showShareError("Could not prepare the share image. Please try again.");
   } finally {
     setShareLoadingState(triggerButton, false);
   }

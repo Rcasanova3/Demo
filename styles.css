@@ -503,3 +503,14 @@ body.modal-open {
   gap: 8px;
   justify-content: flex-end;
 }
+
+
+.share-preview-error {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #2b2f38;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
