@@ -4,137 +4,16 @@ const STORAGE_KEYS = {
   savedThoughts: "abetterthought.savedThoughts",
   lastThought: "abetterthought.lastThought",
   shownCardIds: "abetterthought.shownCardIds",
-  savedFilter: "abetterthought.savedFilter",
-  language: "abt_language"
+  savedFilter: "abetterthought.savedFilter"
 };
 
 const { SPACES = {}, messageCards = {} } = window.APP_CONTENT || {};
 const SPACE_KEYS = Object.keys(SPACES);
 
-const I18N = {
-  en: {
-    appTitle: "A quiet space for daily emotional support.",
-    appTagline: "One small shift. Big difference.",
-    languageLabel: "Language",
-    langEnglish: "English",
-    langSpanish: "Español",
-    howTitle: "How this works",
-    step1: "Step 1: Choose space(s)",
-    step2: "Step 2: Pick category(s)",
-    step3: "Step 3: Click reveal message",
-    chooseSpace: "Choose space",
-    needSpace: "Select at least one space.",
-    noCategory: "No category selected",
-    helperDefault: "Pick a category to reveal your message.",
-    helperReady: "Tap reveal to get a thought card.",
-    helperEmptyPool: "No messages available for the current selection.",
-    placeholder: "Your better thought will appear here.",
-    pickCategories: "Pick categories:",
-    allCategories: "All categories",
-    selectAll: "Select all",
-    clear: "Clear",
-    selectedCount: "selected",
-    reveal: "Reveal message",
-    why: "Why this helps:",
-    lastShown: "Last shown",
-    messageTag: "MESSAGE",
-    openFavorites: "Open Favorites",
-    favoritesTitle: "Favorites",
-    favoritesSub: "Your saved messages in one calm space.",
-    savedLabel: "Saved:",
-    filterAll: "All",
-    clearAll: "Clear all",
-    backToApp: "Back to app",
-    noSaved: "No saved thoughts yet.",
-    remove: "Remove",
-    share: "Share",
-    sharePreviewTitle: "Share image preview",
-    downloadImage: "Download image",
-    close: "Close",
-    nativeShare: "Share",
-    shareErrorEmpty: "Reveal a better thought first.",
-    shareErrorGeneric: "Could not prepare the share image. Please try again."
-  },
-  es: {
-    appTitle: "Un espacio tranquilo para apoyo emocional diario.",
-    appTagline: "Un pequeño cambio. Gran diferencia.",
-    languageLabel: "Idioma",
-    langEnglish: "English",
-    langSpanish: "Español",
-    howTitle: "Cómo funciona",
-    step1: "Paso 1: Elige uno o más espacios",
-    step2: "Paso 2: Elige una o más categorías",
-    step3: "Paso 3: Haga clic en Revelar mensaje",
-    chooseSpace: "Elegir espacios",
-    needSpace: "Selecciona al menos un espacio.",
-    noCategory: "Ninguna categoría seleccionada",
-    helperDefault: "Elige una categoría para revelar tu mensaje.",
-    helperReady: "Haga clic en Revelar mensaje",
-    helperEmptyPool: "No hay mensajes disponibles para la selección actual.",
-    placeholder: "Aquí aparecerá tu mejor pensamiento.",
-    pickCategories: "Elige categorías:",
-    allCategories: "Todas las categorías",
-    selectAll: "Seleccionar todo",
-    clear: "Limpiar",
-    selectedCount: "seleccionadas",
-    reveal: "Revelar mensaje",
-    why: "Por qué ayuda:",
-    lastShown: "Última vez",
-    messageTag: "MENSAJE",
-    openFavorites: "Abrir Favoritos",
-    favoritesTitle: "Favoritos",
-    favoritesSub: "Tus mensajes guardados en un espacio tranquilo.",
-    savedLabel: "Guardados:",
-    filterAll: "Todos",
-    clearAll: "Borrar todo",
-    backToApp: "Volver a la app",
-    noSaved: "Aún no hay pensamientos guardados.",
-    remove: "Eliminar",
-    share: "Compartir",
-    sharePreviewTitle: "Vista previa para compartir",
-    downloadImage: "Descargar imagen",
-    close: "Cerrar",
-    nativeShare: "Compartir",
-    shareErrorEmpty: "Primero revela un mejor pensamiento.",
-    shareErrorGeneric: "No se pudo preparar la imagen para compartir. Inténtalo de nuevo."
-  }
-};
-
-const SPACE_LABELS = {
-  Personal: { en: "Personal", es: "Personal" },
-  Work: { en: "Work", es: "Trabajo" },
-  Parents: { en: "Parents", es: "Padres" },
-  Relationships: { en: "Relationships", es: "Relaciones" },
-  Single: { en: "Single", es: "Soltería" },
-  Student: { en: "Student", es: "Estudiante" },
-  ADHD: { en: "ADHD", es: "TDAH" },
-  Caregiver: { en: "Caregiver", es: "Cuidados" },
-  "Military/Veteran": { en: "Military/Veteran", es: "Militar/Veterano" },
-  Entrepreneur: { en: "Entrepreneur", es: "Emprendedor" }
-};
-
-const CATEGORY_LABELS = {
-  Gratitude: { es: "Gratitud" }, Calm: { es: "Calma" }, Joy: { es: "Alegría" }, Hope: { es: "Esperanza" }, Confidence: { es: "Confianza" },
-  Focused: { es: "Enfoque" }, Motivated: { es: "Motivación" }, Connected: { es: "Conexión" }, Balanced: { es: "Equilibrio" }, Overwhelmed: { es: "Abrumado" },
-  Anxious: { es: "Ansiedad" }, Distracted: { es: "Distraído" }, Unmotivated: { es: "Desmotivado" }, Selfdoubt: { es: "Duda propia" }, Angry: { es: "Enojo" },
-  Sad: { es: "Tristeza" }, Guilt: { es: "Culpa" }, Lonely: { es: "Soledad" }, Burnout: { es: "Agotamiento" }, Overthinking: { es: "Sobrepensar" },
-  Focus: { es: "Foco" }, Boundaries: { es: "Límites" }, Clarity: { es: "Claridad" }, Pressure: { es: "Presión" }, Conflict: { es: "Conflicto" },
-  Feedback: { es: "Retroalimentación" }, Priorities: { es: "Prioridades" }, Momentum: { es: "Impulso" }, Balance: { es: "Balance" }, Purpose: { es: "Propósito" },
-  Patience: { es: "Paciencia" }, Presence: { es: "Presencia" }, Consistency: { es: "Constancia" }, Connection: { es: "Conexión" }, Energy: { es: "Energía" },
-  Overwhelm: { es: "Abrumo" }, Play: { es: "Juego" }, Discipline: { es: "Disciplina" }, Partnership: { es: "Equipo" }, Rest: { es: "Descanso" },
-  Trust: { es: "Confianza" }, Respect: { es: "Respeto" }, Listening: { es: "Escucha" }, Repair: { es: "Reparación" }, Intimacy: { es: "Intimidad" },
-  Appreciation: { es: "Aprecio" }, Honesty: { es: "Honestidad" }, Growth: { es: "Crecimiento" }, Independence: { es: "Independencia" }, Healing: { es: "Sanación" },
-  Standards: { es: "Estándares" }, Courage: { es: "Valentía" }, Social: { es: "Social" }, Peace: { es: "Paz" }, Openness: { es: "Apertura" },
-  Selfworth: { es: "Autoestima" }, Adventure: { es: "Aventura" }, Motivation: { es: "Motivación" }, Time: { es: "Tiempo" }, Stress: { es: "Estrés" },
-  Memory: { es: "Memoria" }, Progress: { es: "Progreso" }, Resilience: { es: "Resiliencia" }, Planning: { es: "Planificación" }, Distraction: { es: "Distracción" },
-  Routine: { es: "Rutina" }, Impulses: { es: "Impulsos" }, Followthrough: { es: "Constancia" }, Reset: { es: "Reinicio" }, Compassion: { es: "Compasión" },
-  Support: { es: "Apoyo" }, Strength: { es: "Fortaleza" }, Acceptance: { es: "Aceptación" }, Recovery: { es: "Recuperación" }, Transition: { es: "Transición" },
-  Identity: { es: "Identidad" }, Brotherhood: { es: "Compañerismo" }, Leadership: { es: "Liderazgo" }, Mission: { es: "Misión" }, Vision: { es: "Visión" },
-  Risk: { es: "Riesgo" }, Systems: { es: "Sistemas" }
-};
+const txSpace = (space) => space;
+const txCategory = (category) => category;
 
 const state = {
-  language: "en",
   selectedSpaces: ["Personal"],
   selectedCategoryKeys: [],
   savedThoughts: [],
@@ -151,8 +30,6 @@ const el = {
   body: document.body,
   heroTitle: document.querySelector(".hero h1"),
   heroSub: document.querySelector(".hero .subtext"),
-  languageLabel: document.querySelector('.language-row label[for="languageSelect"]'),
-  languageSelect: document.getElementById("languageSelect"),
   howTitle: document.querySelector(".onboarding h2"),
   step1: document.getElementById("step1"),
   step2: document.getElementById("step2"),
@@ -186,10 +63,6 @@ const el = {
   shareClose: document.getElementById("shareCloseBtn")
 };
 
-const t = (key) => I18N[state.language]?.[key] ?? I18N.en[key] ?? key;
-const txSpace = (space) => SPACE_LABELS[space]?.[state.language] || space;
-const txCategory = (category) => (state.language === "es" ? (CATEGORY_LABELS[category]?.es || category) : category);
-
 const categoryKey = (space, category) => `${category}|${space}`;
 const parseCategoryKey = (key) => {
   const [category, space] = String(key || "").split("|");
@@ -208,14 +81,11 @@ const categoryOptions = () => {
 
 const localizeCard = (card) => ({
   ...card,
-  mainText: typeof card.main === "string" ? card.main : card.main?.[state.language] || card.main?.en || "",
-  whyText: typeof card.why === "string" ? card.why : card.why?.[state.language] || card.why?.en || ""
+  mainText: typeof card.main === "string" ? card.main : card.main?.en || "",
+  whyText: typeof card.why === "string" ? card.why : card.why?.en || ""
 });
 
 const restore = () => {
-  const lang = get(STORAGE_KEYS.language);
-  if (lang === "en" || lang === "es") state.language = lang;
-
   try {
     const spaces = JSON.parse(get(STORAGE_KEYS.activeSpaces) || "[]");
     if (Array.isArray(spaces)) {
@@ -244,45 +114,8 @@ const restore = () => {
 };
 
 const persist = () => {
-  set(STORAGE_KEYS.language, state.language);
   set(STORAGE_KEYS.activeSpaces, JSON.stringify(state.selectedSpaces));
   set(STORAGE_KEYS.selectedCategoryKeys, JSON.stringify(state.selectedCategoryKeys));
-};
-
-const applyTranslations = () => {
-  if (el.heroTitle) el.heroTitle.textContent = t("appTitle");
-  if (el.heroSub) el.heroSub.textContent = t("appTagline");
-  if (el.languageLabel) el.languageLabel.textContent = t("languageLabel");
-  if (el.languageSelect) {
-    const opts = el.languageSelect.options;
-    if (opts[0]) opts[0].textContent = t("langEnglish");
-    if (opts[1]) opts[1].textContent = t("langSpanish");
-    el.languageSelect.value = state.language;
-  }
-  if (el.howTitle) el.howTitle.textContent = t("howTitle");
-  if (el.step1) el.step1.textContent = t("step1");
-  if (el.step2) el.step2.textContent = t("step2");
-  if (el.step3) el.step3.textContent = t("step3");
-  if (el.chooseSpaceTitle) el.chooseSpaceTitle.textContent = t("chooseSpace");
-  if (el.spaceHelper) el.spaceHelper.textContent = t("needSpace");
-  if (el.categoryLabel) el.categoryLabel.textContent = t("pickCategories");
-  if (el.categorySelectAll) el.categorySelectAll.textContent = t("selectAll");
-  if (el.categoryClear) el.categoryClear.textContent = t("clear");
-  if (el.revealBtn) el.revealBtn.textContent = t("reveal");
-  if (el.favoritesLink) el.favoritesLink.textContent = t("openFavorites");
-  if (el.clearSavedBtn) el.clearSavedBtn.textContent = t("clearAll");
-  if (el.backToAppLink) el.backToAppLink.textContent = t("backToApp");
-  if (el.shareTitle) el.shareTitle.textContent = t("sharePreviewTitle");
-  if (el.shareDownload) el.shareDownload.textContent = t("downloadImage");
-  if (el.shareClose) el.shareClose.textContent = t("close");
-  if (el.shareNative) el.shareNative.textContent = t("nativeShare");
-
-  if (el.body.dataset.page === "favorites") {
-    const heroH1 = document.querySelector(".hero h1");
-    const heroP = document.querySelector(".hero .subtext");
-    if (heroH1) heroH1.textContent = t("favoritesTitle");
-    if (heroP) heroP.textContent = t("favoritesSub");
-  }
 };
 
 const cleanCategorySelection = () => {
@@ -315,10 +148,10 @@ const renderSpaces = () => {
 
 const categorySummary = () => {
   const options = categoryOptions();
-  if (!options.length || !state.selectedCategoryKeys.length) return t("allCategories");
+  if (!options.length || !state.selectedCategoryKeys.length) return "All categories";
   const selected = options.filter((o) => state.selectedCategoryKeys.includes(o.key));
   if (selected.length <= 2) return selected.map((o) => txCategory(o.category)).join(", ");
-  return `${selected.length} ${t("selectedCount")}`;
+  return `${selected.length} ${"selected"}`;
 };
 
 const syncCategoryMenu = () => {
@@ -393,7 +226,7 @@ const nextCard = () => {
   const pool = buildPool();
   if (!pool.length) return null;
 
-  const bucket = `${state.language}::${[...state.selectedSpaces].sort().join(",")}::${[...state.selectedCategoryKeys].sort().join(",")}`;
+  const bucket = `${[...state.selectedSpaces].sort().join(",")}::${[...state.selectedCategoryKeys].sort().join(",")}`;
   const shown = Array.isArray(state.shownCardIds[bucket]) ? state.shownCardIds[bucket] : [];
   let candidates = pool.filter((card) => !shown.includes(card.id));
 
@@ -421,13 +254,13 @@ const updateRevealState = () => {
   if (el.revealBtn) el.revealBtn.disabled = !hasSpaces || !hasPool;
 
   if (el.activeCategoryLabel) {
-    el.activeCategoryLabel.textContent = hasSpaces ? categorySummary() : t("noCategory");
+    el.activeCategoryLabel.textContent = hasSpaces ? categorySummary() : "No category selected";
   }
 
   if (el.revealHelper) {
-    if (!hasSpaces) el.revealHelper.textContent = t("needSpace");
-    else if (!hasPool) el.revealHelper.textContent = t("helperEmptyPool");
-    else el.revealHelper.textContent = t("helperReady");
+    if (!hasSpaces) el.revealHelper.textContent = "Select at least one space.";
+    else if (!hasPool) el.revealHelper.textContent = "No messages available for the current selection.";
+    else el.revealHelper.textContent = "Click reveal message";
   }
 
   if (el.spaceHelper) el.spaceHelper.hidden = hasSpaces;
@@ -560,7 +393,7 @@ const toBlobFromDataURL = (dataURL) => {
 };
 
 const generateSharePoster = async ({ appName, tagline, space, category, message }) => {
-  if (!message || !message.trim()) throw new Error(t("shareErrorEmpty"));
+  if (!message || !message.trim()) throw new Error("Reveal a better thought first.");
   await document.fonts?.ready;
 
   const W = 1080;
@@ -633,7 +466,7 @@ const showShareError = (message) => {
 const shareThought = async (card = state.currentCard, btn = null) => {
   const message = card?.mainText || card?.main || "";
   if (!message.trim()) {
-    showShareError(t("shareErrorEmpty"));
+    showShareError("Reveal a better thought first.");
     return;
   }
 
@@ -676,7 +509,7 @@ const shareThought = async (card = state.currentCard, btn = null) => {
     openShareModal();
   } catch (err) {
     console.error("share_error", { err, messageLength: message.length });
-    showShareError(t("shareErrorGeneric"));
+    showShareError("Could not prepare the share image. Please try again.");
   } finally {
     setShareLoading(btn, false);
   }
@@ -692,14 +525,14 @@ const renderThought = (card, animate = true) => {
   el.thoughtBubble.innerHTML = `
     <article class="thought-content">
       <p class="thought-category">
-        <span class="thought-tag">${t("messageTag")}</span>
-        <span class="last-shown">${t("lastShown")}: ${new Date(card.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
+        <span class="thought-tag">${"MESSAGE"}</span>
+        <span class="last-shown">${"Last shown"}: ${new Date(card.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
         <button type="button" class="icon-btn icon-star ${saved ? "is-favorited" : ""}" id="cardFavoriteBtn" aria-label="Toggle favorite">${saved ? "★" : "☆"}</button>
-        <button type="button" class="icon-btn" id="cardShareBtn" aria-label="${t("share")}">⤴</button>
+        <button type="button" class="icon-btn" id="cardShareBtn" aria-label="${"Share"}">⤴</button>
       </p>
       <p class="thought-text">${card.mainText}</p>
       <div class="thought-divider" aria-hidden="true"></div>
-      <p class="thought-detail"><strong>${t("why")}</strong> ${card.whyText}</p>
+      <p class="thought-detail"><strong>${"Why this helps:"}</strong> ${card.whyText}</p>
     </article>
   `;
 
@@ -724,8 +557,8 @@ const reveal = () => {
 
 const renderSavedFilters = () => {
   if (!el.savedFilterControls) return;
-  const options = [{ value: "all", label: t("filterAll") }, ...SPACE_KEYS.map((space) => ({ value: slug(space), label: txSpace(space) }))];
-  el.savedFilterControls.innerHTML = `<span class="saved-filter-label">${t("savedLabel")}</span>`;
+  const options = [{ value: "all", label: "All" }, ...SPACE_KEYS.map((space) => ({ value: slug(space), label: txSpace(space) }))];
+  el.savedFilterControls.innerHTML = `<span class="saved-filter-label">${"Saved:"}</span>`;
   options.forEach((option) => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -750,7 +583,7 @@ const renderSaved = () => {
     : state.savedThoughts.filter((item) => slug(item.section) === state.savedFilter);
 
   if (!visible.length) {
-    el.savedList.innerHTML = `<li class="saved-empty">${t("noSaved")}</li>`;
+    el.savedList.innerHTML = `<li class="saved-empty">${"No saved thoughts yet."}</li>`;
     if (el.clearSavedBtn) el.clearSavedBtn.hidden = state.savedThoughts.length === 0;
     return;
   }
@@ -763,8 +596,8 @@ const renderSaved = () => {
       <p class="saved-section">${txSpace(item.section)} · ${txCategory(item.category)}</p>
       <p class="saved-text">${item.text}</p>
       <div class="saved-actions">
-        <button type="button" class="btn btn-tertiary" data-share-id="${item.id}">${t("share")}</button>
-        <button type="button" class="btn btn-tertiary" data-remove-id="${item.id}">${t("remove")}</button>
+        <button type="button" class="btn btn-tertiary" data-share-id="${item.id}">${"Share"}</button>
+        <button type="button" class="btn btn-tertiary" data-remove-id="${item.id}">${"Remove"}</button>
       </div>
     `;
     el.savedList.appendChild(li);
@@ -786,27 +619,6 @@ const renderSaved = () => {
       if (!item) return;
       shareThought({ space: item.section, category: item.category, mainText: item.text }, btn);
     });
-  });
-};
-
-const bindLanguage = () => {
-  if (!el.languageSelect) return;
-  el.languageSelect.value = state.language;
-  el.languageSelect.addEventListener("change", () => {
-    state.language = el.languageSelect.value;
-    persist();
-    applyTranslations();
-    renderSpaces();
-    renderCategories();
-    renderSavedFilters();
-    renderSaved();
-    updateRevealState();
-    if (state.currentCard) {
-      state.currentCard = localizeCard(state.currentCard);
-      renderThought(state.currentCard, false);
-    } else if (el.thoughtBubble) {
-      el.thoughtBubble.innerHTML = `<p class="placeholder">${t("placeholder")}</p>`;
-    }
   });
 };
 
@@ -851,8 +663,6 @@ const bindCategoryMenu = () => {
 
 const initHome = () => {
   restore();
-  applyTranslations();
-  bindLanguage();
   bindShareModal();
   renderSpaces();
   cleanCategorySelection();
@@ -869,17 +679,15 @@ const initHome = () => {
     if (last?.space && last?.category && last?.main) {
       renderThought(localizeCard(last), false);
     } else if (el.thoughtBubble) {
-      el.thoughtBubble.innerHTML = `<p class="placeholder">${t("placeholder")}</p>`;
+      el.thoughtBubble.innerHTML = `<p class="placeholder">${"Your better thought will appear here."}</p>`;
     }
   } catch {
-    if (el.thoughtBubble) el.thoughtBubble.innerHTML = `<p class="placeholder">${t("placeholder")}</p>`;
+    if (el.thoughtBubble) el.thoughtBubble.innerHTML = `<p class="placeholder">${"Your better thought will appear here."}</p>`;
   }
 };
 
 const initFavorites = () => {
   restore();
-  applyTranslations();
-  bindLanguage();
   bindShareModal();
   renderSavedFilters();
   renderSaved();

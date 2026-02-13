@@ -148,18 +148,6 @@ ol {
 }
 
 
-.language-row {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
-  align-items: center;
-}
-
-.language-row label {
-  font-size: 0.8rem;
-}
-
 .category-dropdown {
   position: relative;
 }
@@ -178,10 +166,10 @@ ol {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: 40;
   border-radius: 12px;
   border: 1px solid rgba(201, 204, 210, 0.95);
   background: rgba(251, 251, 252, 0.96);
@@ -197,7 +185,7 @@ ol {
 }
 
 .category-list {
-  max-height: 220px;
+  max-height: min(320px, 50vh);
   overflow: auto;
   display: grid;
   gap: 4px;
