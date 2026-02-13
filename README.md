@@ -14,7 +14,6 @@ A calm, mobile-first static web app with multiple support spaces and category-ba
   - Choose one or more spaces
   - Choose one or more categories (or leave empty for All categories)
   - Reveal mixed-pool message card (main + Why this helps)
-  - Secondary actions: Show me another better thought, Save this thought, Share this thought
   - In-card quick actions: favorite star + share icon
 - Message cards support bilingual text with fallback: `main` and `why` can be language maps (`en` / `es`) and fall back to English when missing
 - Repeat minimization tracks shown card IDs for the current mixed selection bucket and avoids immediate duplicates

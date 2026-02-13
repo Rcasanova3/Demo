@@ -35,9 +35,6 @@ const I18N = {
     clear: "Clear",
     selectedCount: "selected",
     reveal: "Reveal message",
-    actionAnother: "Show me another better thought",
-    actionSave: "Save this thought",
-    actionShare: "Share this thought",
     why: "Why this helps:",
     lastShown: "Last shown",
     messageTag: "MESSAGE",
@@ -67,12 +64,12 @@ const I18N = {
     howTitle: "Cómo funciona",
     step1: "Paso 1: Elige uno o más espacios",
     step2: "Paso 2: Elige una o más categorías",
-    step3: "Paso 3: Pulsa revelar mensaje",
+    step3: "Paso 3: Haga clic en Revelar mensaje",
     chooseSpace: "Elegir espacios",
     needSpace: "Selecciona al menos un espacio.",
     noCategory: "Ninguna categoría seleccionada",
     helperDefault: "Elige una categoría para revelar tu mensaje.",
-    helperReady: "Pulsa revelar para obtener un mensaje.",
+    helperReady: "Haga clic en Revelar mensaje",
     helperEmptyPool: "No hay mensajes disponibles para la selección actual.",
     placeholder: "Aquí aparecerá tu mejor pensamiento.",
     pickCategories: "Elige categorías:",
@@ -81,9 +78,6 @@ const I18N = {
     clear: "Limpiar",
     selectedCount: "seleccionadas",
     reveal: "Revelar mensaje",
-    actionAnother: "Muéstrame otro mejor pensamiento",
-    actionSave: "Guardar este pensamiento",
-    actionShare: "Compartir este pensamiento",
     why: "Por qué ayuda:",
     lastShown: "Última vez",
     messageTag: "MENSAJE",
@@ -176,10 +170,6 @@ const el = {
   revealHelper: document.getElementById("revealHelper"),
   revealBtn: document.getElementById("revealBtn"),
   thoughtBubble: document.getElementById("thoughtBubble"),
-  anotherBtn: document.getElementById("anotherBtn"),
-  saveBtn: document.getElementById("saveBtn"),
-  shareBtn: document.getElementById("shareBtn"),
-  postActions: document.getElementById("postActions"),
   favoritesLink: document.querySelector(".favorites-link"),
   savedFilterControls: document.getElementById("savedFilterControls"),
   savedList: document.getElementById("savedList"),
@@ -279,9 +269,6 @@ const applyTranslations = () => {
   if (el.categorySelectAll) el.categorySelectAll.textContent = t("selectAll");
   if (el.categoryClear) el.categoryClear.textContent = t("clear");
   if (el.revealBtn) el.revealBtn.textContent = t("reveal");
-  if (el.anotherBtn) el.anotherBtn.textContent = t("actionAnother");
-  if (el.saveBtn) el.saveBtn.textContent = t("actionSave");
-  if (el.shareBtn) el.shareBtn.textContent = t("actionShare");
   if (el.favoritesLink) el.favoritesLink.textContent = t("openFavorites");
   if (el.clearSavedBtn) el.clearSavedBtn.textContent = t("clearAll");
   if (el.backToAppLink) el.backToAppLink.textContent = t("backToApp");
@@ -334,16 +321,25 @@ const categorySummary = () => {
   return `${selected.length} ${t("selectedCount")}`;
 };
 
-const closeCategoryMenu = () => {
+const syncCategoryMenu = () => {
   if (!el.categoryMenu || !el.categorySummaryBtn) return;
-  el.categoryMenu.hidden = true;
-  el.categorySummaryBtn.setAttribute("aria-expanded", "false");
+  el.categoryMenu.hidden = !categoryMenuOpen;
+  el.categorySummaryBtn.setAttribute("aria-expanded", String(categoryMenuOpen));
+};
+
+const closeCategoryMenu = () => {
+  categoryMenuOpen = false;
+  syncCategoryMenu();
 };
 
 const openCategoryMenu = () => {
-  if (!el.categoryMenu || !el.categorySummaryBtn) return;
-  el.categoryMenu.hidden = false;
-  el.categorySummaryBtn.setAttribute("aria-expanded", "true");
+  categoryMenuOpen = true;
+  syncCategoryMenu();
+};
+
+const toggleCategoryMenu = () => {
+  categoryMenuOpen = !categoryMenuOpen;
+  syncCategoryMenu();
 };
 
 const renderCategories = () => {
@@ -465,6 +461,7 @@ const toggleFavorite = () => {
 
 let activeShareUrl = null;
 let activeShareBlob = null;
+let categoryMenuOpen = false;
 
 const closeShareModal = () => {
   if (!el.shareModal) return;
@@ -713,7 +710,6 @@ const renderThought = (card, animate = true) => {
   });
   document.getElementById("cardShareBtn")?.addEventListener("click", (event) => shareThought(card, event.currentTarget));
 
-  if (el.postActions) el.postActions.hidden = false;
   if (animate) requestAnimationFrame(() => el.thoughtBubble.classList.add("is-revealed"));
 };
 
@@ -818,11 +814,17 @@ const bindCategoryMenu = () => {
   if (!el.categorySummaryBtn || !el.categoryMenu) return;
   el.categorySummaryBtn.addEventListener("click", (event) => {
     event.stopPropagation();
-    if (el.categoryMenu.hidden) openCategoryMenu();
-    else closeCategoryMenu();
+    toggleCategoryMenu();
   });
 
-  document.addEventListener("click", (event) => {
+  el.categorySummaryBtn.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleCategoryMenu();
+    }
+  });
+
+  document.addEventListener("mousedown", (event) => {
     if (!event.target.closest(".category-dropdown")) closeCategoryMenu();
   });
 
@@ -857,16 +859,10 @@ const initHome = () => {
   persist();
   renderCategories();
   bindCategoryMenu();
+  closeCategoryMenu();
   updateRevealState();
 
   el.revealBtn?.addEventListener("click", reveal);
-  el.anotherBtn?.addEventListener("click", reveal);
-  el.saveBtn?.addEventListener("click", () => {
-    saveCurrent();
-    renderThought(state.currentCard, false);
-    renderSaved();
-  });
-  el.shareBtn?.addEventListener("click", (event) => shareThought(state.currentCard, event.currentTarget));
 
   try {
     const last = JSON.parse(get(STORAGE_KEYS.lastThought) || "null");

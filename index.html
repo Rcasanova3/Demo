@@ -57,23 +57,17 @@
           <div class="control-block">
             <label id="categoryLabel">Pick categories:</label>
             <div class="category-dropdown">
-              <button id="categorySummaryBtn" class="dropdown-btn" type="button">All categories</button>
+              <button id="categorySummaryBtn" class="dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false">All categories</button>
               <div id="categoryMenu" class="dropdown-menu" hidden>
                 <div class="dropdown-actions">
                   <button id="categorySelectAll" type="button" class="btn btn-tertiary">Select all</button>
                   <button id="categoryClear" type="button" class="btn btn-tertiary">Clear</button>
                 </div>
-                <div id="categoryList" class="category-list"></div>
+                <div id="categoryList" class="category-list" role="listbox"></div>
               </div>
             </div>
 
             <button id="revealBtn" class="btn btn-primary" disabled>Reveal message</button>
-
-            <div id="postActions" class="action-row" hidden>
-              <button id="anotherBtn" class="btn btn-secondary" type="button">Show me another better thought</button>
-              <button id="saveBtn" class="btn btn-secondary" type="button">Save this thought</button>
-              <button id="shareBtn" class="btn btn-secondary" type="button">Share this thought</button>
-            </div>
 
           </div>
 
