@@ -14,11 +14,12 @@ A calm, mobile-first static web app with multiple support spaces and category-ba
   - Choose one or more spaces
   - Choose one or more categories (or leave empty for All categories)
   - Reveal mixed-pool message card (main + Why this helps)
-  - Use in-card icons (favorite star + share)
+  - Secondary actions: Show me another better thought, Save this thought, Share this thought
+  - In-card quick actions: favorite star + share icon
 - Message cards support bilingual text with fallback: `main` and `why` can be language maps (`en` / `es`) and fall back to English when missing
 - Repeat minimization tracks shown card IDs for the current mixed selection bucket and avoids immediate duplicates
 - Dev validation on load warns in console if any card has missing fields or duplicate IDs
-- Language selector (English/Español) updates UI labels and message content and is persisted in localStorage
+- Language selector (English/Español) updates UI labels, space/category labels, modal/favorites text, and message content; selection persists in localStorage
 - Favorites include space, category, text, and timestamp
 - Favorites page supports filtering by All or any Space
 - Share creates a branded 1080×1350 poster PNG (app name, tagline, selected space, selected category, and core message), opens a preview modal, supports download, and shows native file share when available
