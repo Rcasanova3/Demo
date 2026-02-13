@@ -207,7 +207,6 @@ const renderCategories = () => {
       persist();
       renderCategories();
       updateRevealState();
-      closeCategoryDropdown();
     });
     el.categoryChecklist.appendChild(row);
   });
@@ -678,7 +677,6 @@ const bindCategoryMenu = () => {
     persist();
     renderCategories();
     updateRevealState();
-    closeCategoryDropdown();
   });
 
   el.categoryClear?.addEventListener("click", () => {
@@ -686,7 +684,6 @@ const bindCategoryMenu = () => {
     persist();
     renderCategories();
     updateRevealState();
-    closeCategoryDropdown();
   });
 
   dd.dataset.bound = "1";
