@@ -5,20 +5,20 @@ A calm, mobile-first static web app with multiple support spaces and category-ba
 ## What it does
 
 - No subscription required (all features are immediately available)
-- Space selector with localStorage persistence (default: Personal)
+- Multi-select space chips with localStorage persistence (default: Personal)
 - Spaces included:
   - Personal (20 fixed categories, unchanged)
   - Work, Parents, Relationships, Single, Student, ADHD, Caregiver, Military/Veteran, Entrepreneur
-- Category list updates based on selected Space
+- Category dropdown supports multi-select across the union of selected spaces (zero selected categories is treated as All categories)
 - Reveal flow:
-  - Pick category
-  - Reveal message card (main + Why this helps)
+  - Choose one or more spaces
+  - Choose one or more categories (or leave empty for All categories)
+  - Reveal mixed-pool message card (main + Why this helps)
   - Use in-card icons (favorite star + share)
-- Message cards are stored in one consistent structure: `messageCards[space][category] = [{ id, space, category, main, why }]`
-- Repeat minimization:
-  - Tracks shown card IDs per Space+Category in localStorage
-  - Avoids repeats until all cards for that Space+Category are shown, then resets
+- Message cards support bilingual text with fallback: `main` and `why` can be language maps (`en` / `es`) and fall back to English when missing
+- Repeat minimization tracks shown card IDs for the current mixed selection bucket and avoids immediate duplicates
 - Dev validation on load warns in console if any card has missing fields or duplicate IDs
+- Language selector (English/Español) updates UI labels and message content and is persisted in localStorage
 - Favorites include space, category, text, and timestamp
 - Favorites page supports filtering by All or any Space
 - Share creates a branded 1080×1350 poster PNG (app name, tagline, selected space, selected category, and core message), opens a preview modal, supports download, and shows native file share when available

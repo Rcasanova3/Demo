@@ -22,19 +22,27 @@
           <p class="eyebrow">A BETTER THOUGHT</p>
           <h1>A quiet space for daily emotional support.</h1>
           <p class="subtext">One small shift. Big difference.</p>
+          <div class="language-row">
+            <label for="languageSelect">Language</label>
+            <select id="languageSelect">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+          </div>
         </header>
 
         <section class="panel onboarding">
           <h2>How this works</h2>
           <ol>
-            <li>Step 1: Choose space</li>
-            <li>Step 2: Pick category</li>
-            <li>Step 3: Click reveal message</li>
+            <li id="step1">Step 1: Choose space(s)</li>
+            <li id="step2">Step 2: Pick category(s)</li>
+            <li id="step3">Step 3: Click reveal message</li>
           </ol>
         </section>
 
         <section class="panel section-switch-panel" aria-label="Space selector">
-          <p class="how-title">Choose space</p>
+          <p class="how-title" id="chooseSpaceTitle">Choose space</p>
+          <p class="helper" id="spaceHelper" hidden>Select at least one space.</p>
           <div class="space-switch" id="spaceSwitch" role="tablist" aria-label="Support spaces"></div>
         </section>
 
@@ -47,10 +55,17 @@
           </div>
 
           <div class="control-block">
-            <label for="categorySelect">Pick a category:</label>
-            <select id="categorySelect">
-              <option value="">Select a category</option>
-            </select>
+            <label id="categoryLabel">Pick categories:</label>
+            <div class="category-dropdown">
+              <button id="categorySummaryBtn" class="dropdown-btn" type="button">All categories</button>
+              <div id="categoryMenu" class="dropdown-menu" hidden>
+                <div class="dropdown-actions">
+                  <button id="categorySelectAll" type="button" class="btn btn-tertiary">Select all</button>
+                  <button id="categoryClear" type="button" class="btn btn-tertiary">Clear</button>
+                </div>
+                <div id="categoryList" class="category-list"></div>
+              </div>
+            </div>
 
             <button id="revealBtn" class="btn btn-primary" disabled>Reveal message</button>
 
