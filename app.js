@@ -38,9 +38,13 @@ const el = {
   spaceHelper: document.getElementById("spaceHelper"),
   spaceSwitch: document.getElementById("spaceSwitch"),
   categoryLabel: document.getElementById("categoryLabel"),
-  categorySummaryBtn: document.getElementById("categorySummaryBtn"),
-  categoryMenu: document.getElementById("categoryMenu"),
-  categoryList: document.getElementById("categoryList"),
+  categoryDropdown: document.getElementById("categoryDropdown"),
+  categoryToggle: document.getElementById("categoryToggle"),
+  categorySummary: document.getElementById("categorySummary"),
+  categoryChevron: document.getElementById("categoryChevron"),
+  categoryPanel: document.getElementById("categoryPanel"),
+  categoryClose: document.getElementById("categoryClose"),
+  categoryChecklist: document.getElementById("categoryChecklist"),
   categorySelectAll: document.getElementById("categorySelectAll"),
   categoryClear: document.getElementById("categoryClear"),
   activeCategoryLabel: document.getElementById("activeCategoryLabel"),
@@ -154,31 +158,36 @@ const categorySummary = () => {
   return `${selected.length} ${"selected"}`;
 };
 
-const syncCategoryMenu = () => {
-  if (!el.categoryMenu || !el.categorySummaryBtn) return;
-  el.categoryMenu.hidden = !categoryMenuOpen;
-  el.categorySummaryBtn.setAttribute("aria-expanded", String(categoryMenuOpen));
-};
+function syncCategoryDropdown() {
+  const panel = document.getElementById("categoryPanel");
+  const toggle = document.getElementById("categoryToggle");
+  const chevron = document.getElementById("categoryChevron");
+  if (!panel || !toggle) return;
 
-const closeCategoryMenu = () => {
-  categoryMenuOpen = false;
-  syncCategoryMenu();
-};
+  panel.hidden = !isCategoryOpen;
+  toggle.setAttribute("aria-expanded", String(isCategoryOpen));
+  if (chevron) chevron.textContent = isCategoryOpen ? "▴" : "▾";
+}
 
-const openCategoryMenu = () => {
-  categoryMenuOpen = true;
-  syncCategoryMenu();
-};
+function openCategoryDropdown() {
+  isCategoryOpen = true;
+  syncCategoryDropdown();
+}
 
-const toggleCategoryMenu = () => {
-  categoryMenuOpen = !categoryMenuOpen;
-  syncCategoryMenu();
-};
+function closeCategoryDropdown() {
+  isCategoryOpen = false;
+  syncCategoryDropdown();
+}
+
+function toggleCategoryDropdown() {
+  isCategoryOpen = !isCategoryOpen;
+  syncCategoryDropdown();
+}
 
 const renderCategories = () => {
-  if (!el.categoryList || !el.categorySummaryBtn) return;
+  if (!el.categoryChecklist || !el.categorySummary) return;
   const options = categoryOptions();
-  el.categoryList.innerHTML = "";
+  el.categoryChecklist.innerHTML = "";
 
   options.forEach((item) => {
     const row = document.createElement("label");
@@ -198,12 +207,12 @@ const renderCategories = () => {
       persist();
       renderCategories();
       updateRevealState();
-      closeCategoryMenu();
+      closeCategoryDropdown();
     });
-    el.categoryList.appendChild(row);
+    el.categoryChecklist.appendChild(row);
   });
 
-  el.categorySummaryBtn.textContent = categorySummary();
+  el.categorySummary.textContent = categorySummary();
 };
 
 const buildPool = () => {
@@ -294,7 +303,7 @@ const toggleFavorite = () => {
 
 let activeShareUrl = null;
 let activeShareBlob = null;
-let categoryMenuOpen = false;
+let isCategoryOpen = false;
 
 const closeShareModal = () => {
   if (!el.shareModal) return;
@@ -623,25 +632,45 @@ const renderSaved = () => {
 };
 
 const bindCategoryMenu = () => {
-  if (!el.categorySummaryBtn || !el.categoryMenu) return;
-  el.categorySummaryBtn.addEventListener("click", (event) => {
+  const dd = document.getElementById("categoryDropdown");
+  const toggle = document.getElementById("categoryToggle");
+  const panel = document.getElementById("categoryPanel");
+  const closeBtn = document.getElementById("categoryClose");
+  if (!dd || !toggle || !panel || !closeBtn || dd.dataset.bound === "1") return;
+
+  isCategoryOpen = false;
+  syncCategoryDropdown();
+
+  toggle.addEventListener("click", (event) => {
+    event.preventDefault();
     event.stopPropagation();
-    toggleCategoryMenu();
+    toggleCategoryDropdown();
   });
 
-  el.categorySummaryBtn.addEventListener("keydown", (event) => {
+  toggle.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      toggleCategoryMenu();
+      event.stopPropagation();
+      toggleCategoryDropdown();
     }
   });
 
-  document.addEventListener("mousedown", (event) => {
-    if (!event.target.closest(".category-dropdown")) closeCategoryMenu();
+  closeBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    closeCategoryDropdown();
+  });
+
+  panel.addEventListener("click", (event) => event.stopPropagation());
+
+  document.addEventListener("click", (event) => {
+    if (!isCategoryOpen) return;
+    if (!dd.contains(event.target)) closeCategoryDropdown();
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeCategoryMenu();
+    if (!isCategoryOpen) return;
+    if (event.key === "Escape") closeCategoryDropdown();
   });
 
   el.categorySelectAll?.addEventListener("click", () => {
@@ -649,7 +678,7 @@ const bindCategoryMenu = () => {
     persist();
     renderCategories();
     updateRevealState();
-    closeCategoryMenu();
+    closeCategoryDropdown();
   });
 
   el.categoryClear?.addEventListener("click", () => {
@@ -657,8 +686,10 @@ const bindCategoryMenu = () => {
     persist();
     renderCategories();
     updateRevealState();
-    closeCategoryMenu();
+    closeCategoryDropdown();
   });
+
+  dd.dataset.bound = "1";
 };
 
 const initHome = () => {
@@ -669,7 +700,7 @@ const initHome = () => {
   persist();
   renderCategories();
   bindCategoryMenu();
-  closeCategoryMenu();
+  closeCategoryDropdown();
   updateRevealState();
 
   el.revealBtn?.addEventListener("click", reveal);

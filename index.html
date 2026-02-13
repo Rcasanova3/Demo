@@ -49,14 +49,25 @@
 
           <div class="control-block">
             <label id="categoryLabel">Pick categories:</label>
-            <div class="category-dropdown">
-              <button id="categorySummaryBtn" class="dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false">All categories</button>
-              <div id="categoryMenu" class="dropdown-menu" hidden>
-                <div class="dropdown-actions">
+            <div id="categoryDropdown" class="dd">
+              <button id="categoryToggle" class="dd-toggle" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dd-label">Pick categories</span>
+                <span id="categorySummary" class="dd-summary">All categories</span>
+                <span id="categoryChevron" class="dd-chevron" aria-hidden="true">▾</span>
+              </button>
+
+              <div id="categoryPanel" class="dd-panel" hidden>
+                <div class="dd-panel-header">
+                  <div class="dd-panel-title">Categories</div>
+                  <button id="categoryClose" class="dd-close" type="button" aria-label="Close categories">×</button>
+                </div>
+
+                <div class="dd-actions">
                   <button id="categorySelectAll" type="button" class="btn btn-tertiary">Select all</button>
                   <button id="categoryClear" type="button" class="btn btn-tertiary">Clear</button>
                 </div>
-                <div id="categoryList" class="category-list" role="listbox"></div>
+
+                <div id="categoryChecklist" class="dd-checklist" role="listbox"></div>
               </div>
             </div>
 

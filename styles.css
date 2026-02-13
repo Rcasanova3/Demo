@@ -148,11 +148,11 @@ ol {
 }
 
 
-.category-dropdown {
+.dd {
   position: relative;
 }
 
-.dropdown-btn {
+.dd-toggle {
   min-height: 44px;
   width: 100%;
   border-radius: 10px;
@@ -162,14 +162,82 @@ ol {
   font: inherit;
   padding: 0 12px;
   text-align: left;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.dd-label {
+  font-weight: 600;
+}
+
+.dd-summary {
+  color: #666b74;
+  text-align: right;
+}
+
+.dd-chevron {
+  font-size: 0.95rem;
+}
+
+.dd-panel[hidden] {
+  display: none !important;
+}
+
+.dd-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 50;
+  max-height: min(340px, 55vh);
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(201, 204, 210, 0.95);
+  background: rgba(251, 251, 252, 0.96);
+  box-shadow: 0 12px 22px rgba(25, 30, 42, 0.12);
+  padding: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.dd-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dd-panel-title {
+  font-weight: 600;
+}
+
+.dd-close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  color: #52565f;
+}
+
+.dd-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.dd-checklist {
+  max-height: min(320px, 50vh);
+  overflow: auto;
+  display: grid;
+  gap: 4px;
 }
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 40;
+  z-index: 50;
   border-radius: 12px;
   border: 1px solid rgba(201, 204, 210, 0.95);
   background: rgba(251, 251, 252, 0.96);
